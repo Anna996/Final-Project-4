@@ -1,0 +1,29 @@
+package ajbc.doodle.calendar.services;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import ajbc.doodle.calendar.daos.DaoException;
+import ajbc.doodle.calendar.daos.NotificationDao;
+import ajbc.doodle.calendar.entities.Notification;
+
+@Service
+public class NotificationService {
+
+	@Autowired
+	@Qualifier("HTNotificationDao")
+	NotificationDao notificationDao;
+	
+	public List<Notification> getAllNotifications() throws DaoException {
+		List<Notification> notifications = notificationDao.getAllNotifications();
+	
+		if (notifications.isEmpty()) {
+			throw new DaoException("There are no notifications in DB");
+		}
+
+		return notifications;
+	}
+}
