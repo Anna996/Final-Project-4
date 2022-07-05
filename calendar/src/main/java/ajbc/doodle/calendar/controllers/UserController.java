@@ -61,6 +61,8 @@ public class UserController {
 		return "user id: " + id;
 	}
 	
+	
+	
 	/**
 	 * POST operations
 	 * 
@@ -133,17 +135,4 @@ public class UserController {
 	 * 
 	 */
 	
-	// TODO: remove. 
-	@GetMapping("/events")
-	public ResponseEntity<?> getAllUserEvents(){
-		
-		try {
-			List<UserEvent> users = userService.getAllUserEvents();
-			return ResponseEntity.ok(users);
-			
-		} catch (DaoException e) {
-			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), "try again later...");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-		}
-	}
 }

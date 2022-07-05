@@ -27,4 +27,14 @@ public class HTUserEventDao implements UserEventDao {
 
 		return usersEvents;
 	}
+
+	@Override
+	public void addUserEvent(UserEvent userEvent) throws DaoException {
+		try {
+			template.persist(userEvent);
+		}
+		catch (Exception e) {
+			throw new DaoException(e.getMessage());
+		}
+	}
 }

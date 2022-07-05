@@ -27,5 +27,28 @@ public class HTEventDao implements EventDao {
 
 		return events;
 	}
+	
+	@Override
+	public Event getEventById(int id) throws DaoException {
+		Event event = template.get(Event.class, id);
+		
+		if(event == null) {
+			throw new DaoException("There are no such event in DB");
+		}
+		
+		return event;
+	}
+
+	@Override
+	public void addEvent(Event event) throws DaoException {
+		try {
+			template.persist(event);
+		}
+		catch (Exception e) {
+			throw new DaoException(e.getMessage());
+		}
+	}
+
+	
 
 }

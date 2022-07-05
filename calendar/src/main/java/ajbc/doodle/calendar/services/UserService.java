@@ -19,11 +19,6 @@ public class UserService {
 	@Qualifier("HTUserDao")
 	UserDao userDao;
 
-	// TODO: remove.
-	@Autowired
-	@Qualifier("HTUserEventDao")
-	UserEventDao userEventDao;
-
 	public List<User> getAllUsers() throws DaoException {
 		return userDao.getAllUsers();
 	}
@@ -39,11 +34,4 @@ public class UserService {
 	public void updateUser(User user) throws DaoException {
 		userDao.updateUser(user);
 	}
-	
-	
-	
-	// TODO: remove.
-		public List<UserEvent> getAllUserEvents() throws DaoException {
-			return userEventDao.getAllUserEvents();
-		}
 }

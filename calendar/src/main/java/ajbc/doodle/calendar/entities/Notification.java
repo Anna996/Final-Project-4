@@ -32,5 +32,6 @@ public class Notification {
 	private LocalDateTime localDateTime;
 	private String title;
 	private String message;
-	
+	private int eventId;
+	private int userId;
 }
