@@ -19,7 +19,13 @@ public class HTEventDao implements EventDao {
 	@Override
 	public List<Event> getAllEvents() throws DaoException {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class);
-		return (List<Event>) template.findByCriteria(criteria);
+		List<Event> events = (List<Event>) template.findByCriteria(criteria);
+	
+		if (events.isEmpty()) {
+			throw new DaoException("There are no events in DB");
+		}
+
+		return events;
 	}
 
 }

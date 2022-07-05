@@ -18,12 +18,6 @@ public class EventService {
 	EventDao EventDao;
 	
 	public List<Event> getAllEvents() throws DaoException {
-		List<Event> events = EventDao.getAllEvents();
-	
-		if (events.isEmpty()) {
-			throw new DaoException("There are no events in DB");
-		}
-
-		return events;
+		return EventDao.getAllEvents();
 	}
 }

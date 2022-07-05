@@ -18,31 +18,32 @@ public class UserService {
 	@Autowired
 	@Qualifier("HTUserDao")
 	UserDao userDao;
-	
-	// TODO: remove. 
+
+	// TODO: remove.
 	@Autowired
 	@Qualifier("HTUserEventDao")
 	UserEventDao userEventDao;
-	
+
 	public List<User> getAllUsers() throws DaoException {
-		List<User> users = userDao.getAllUsers();
-	
-		if (users.isEmpty()) {
-			throw new DaoException("There are no users in DB");
-		}
+		return userDao.getAllUsers();
+	}
 
-		return users;
+	public User getUserById(int id) throws DaoException {
+		return userDao.getUserById(id);
+	}
+	
+	public void addUser(User user) throws DaoException {
+		userDao.addUser(user);;
+	}
+
+	public void updateUser(User user) throws DaoException {
+		userDao.updateUser(user);
 	}
 	
 	
-	// TODO: remove. 
-	public List<UserEvent> getAllUserEvents() throws DaoException {
-		List<UserEvent> usersEvents = userEventDao.getAllUserEvents();
 	
-		if (usersEvents.isEmpty()) {
-			throw new DaoException("There are no user-events in DB");
+	// TODO: remove.
+		public List<UserEvent> getAllUserEvents() throws DaoException {
+			return userEventDao.getAllUserEvents();
 		}
-
-		return usersEvents;
-	}
 }

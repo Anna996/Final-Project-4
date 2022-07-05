@@ -29,4 +29,5 @@ public class User {
 	private String lastName;
 	private String email;
 	private LocalDate birthdate;
+	private boolean isLoggedIn;
 }

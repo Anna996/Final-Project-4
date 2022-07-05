@@ -19,6 +19,12 @@ public class HTNotificationDao implements NotificationDao {
 	@Override
 	public List<Notification> getAllNotifications() throws DaoException {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
-		return (List<Notification>) template.findByCriteria(criteria);
+		List<Notification> notifications = (List<Notification>) template.findByCriteria(criteria);
+	
+		if (notifications.isEmpty()) {
+			throw new DaoException("There are no notifications in DB");
+		}
+
+		return notifications;
 	}
 }

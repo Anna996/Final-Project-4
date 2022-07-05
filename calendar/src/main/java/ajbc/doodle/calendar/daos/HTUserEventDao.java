@@ -19,8 +19,12 @@ public class HTUserEventDao implements UserEventDao {
 	@Override
 	public List<UserEvent> getAllUserEvents() throws DaoException{
 		DetachedCriteria criteria = DetachedCriteria.forClass(UserEvent.class);
-		return (List<UserEvent>) template.findByCriteria(criteria);
+		List<UserEvent> usersEvents = (List<UserEvent>) template.findByCriteria(criteria);
+	
+		if (usersEvents.isEmpty()) {
+			throw new DaoException("There are no user-events in DB");
+		}
+
+		return usersEvents;
 	}
-	
-	
 }

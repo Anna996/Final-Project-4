@@ -18,12 +18,6 @@ public class NotificationService {
 	NotificationDao notificationDao;
 	
 	public List<Notification> getAllNotifications() throws DaoException {
-		List<Notification> notifications = notificationDao.getAllNotifications();
-	
-		if (notifications.isEmpty()) {
-			throw new DaoException("There are no notifications in DB");
-		}
-
-		return notifications;
+		return notificationDao.getAllNotifications();
 	}
 }
