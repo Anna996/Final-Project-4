@@ -1,7 +1,11 @@
 package ajbc.doodle.calendar.entities;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,4 +27,15 @@ public class Event {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "EventID")
 	private int id;
+	private String title;
+	private String description;
+	private String address;
+	private boolean isAllDay;
+	@Column(name = "StartEvent")
+	private LocalDateTime start;
+	@Column(name = "EndEvent")
+	private LocalDateTime end;
+	@Column(name = "RepeatEvent")
+	@Enumerated(EnumType.STRING)
+	private Repeat repeat;
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.ErrorMessage;
 import ajbc.doodle.calendar.entities.User;
+import ajbc.doodle.calendar.entities.UserEvent;
 import ajbc.doodle.calendar.services.UserService;
 
 @RestController
@@ -34,4 +35,17 @@ public class UserController {
 		}
 	}
 	
+	// TODO: remove. 
+	@GetMapping("/events")
+	public ResponseEntity<?> getAllUserEvents(){
+		
+		try {
+			List<UserEvent> users = userService.getAllUserEvents();
+			return ResponseEntity.ok(users);
+			
+		} catch (DaoException e) {
+			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), "try again later...");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
 }

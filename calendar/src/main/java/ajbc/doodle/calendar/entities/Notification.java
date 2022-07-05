@@ -32,4 +32,5 @@ public class Notification {
 	private LocalDateTime localDateTime;
 	private String title;
 	private String message;
+	
 }

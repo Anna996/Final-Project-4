@@ -1,5 +1,7 @@
 package ajbc.doodle.calendar.entities;
 
+import java.time.LocalDate;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,4 +25,8 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "UserID")
 	private int id;
+	private String firstName;
+	private String lastName;
+	private String email;
+	private LocalDate birthdate;
 }
