@@ -8,6 +8,7 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
 import ajbc.doodle.calendar.entities.UserEvent;
+import ajbc.doodle.calendar.entities.UserEventPK;
 
 @SuppressWarnings("unchecked")
 @Repository("HTUserEventDao")
@@ -27,6 +28,18 @@ public class HTUserEventDao implements UserEventDao {
 
 		return usersEvents;
 	}
+	
+	@Override
+	public UserEvent getUserEventByIDs(int userId, int eventId) throws DaoException {
+		
+		UserEvent userEvent = template.get(UserEvent.class, new UserEventPK(userId, eventId));
+		
+		if(userEvent == null) {
+			throw new DaoException("There are no such user-event in DB");
+		}
+		
+		return userEvent;
+	}
 
 	@Override
 	public void addUserEvent(UserEvent userEvent) throws DaoException {
@@ -37,4 +50,6 @@ public class HTUserEventDao implements UserEventDao {
 			throw new DaoException(e.getMessage());
 		}
 	}
+
+
 }

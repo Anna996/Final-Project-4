@@ -12,6 +12,8 @@ import ajbc.doodle.calendar.entities.UserEvent;
 public interface UserEventDao {
 
 	List<UserEvent> getAllUserEvents() throws DaoException;
+	
+	UserEvent getUserEventByIDs(int userId, int eventId) throws DaoException;
 
 	@Transactional(readOnly = false)
 	void addUserEvent(UserEvent userEvent) throws DaoException;

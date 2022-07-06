@@ -17,14 +17,20 @@ public class UserEventService {
 
 	@Autowired
 	@Qualifier("HTUserEventDao")
-	UserEventDao userEventDao;
+	private UserEventDao userEventDao;
 	
 	
 	public List<UserEvent> getAllUserEvents() throws DaoException {
 		return userEventDao.getAllUserEvents();
 	}
 	
+	public UserEvent getUserEventByIDs(int userId, int eventId) throws DaoException {
+		return userEventDao.getUserEventByIDs(userId, eventId);
+	}
+	
 	public void addUserEvent(UserEvent userEvent) throws DaoException {
 		userEventDao.addUserEvent(userEvent);
 	}
+	
+	
 }

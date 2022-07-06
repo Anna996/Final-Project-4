@@ -15,9 +15,17 @@ public class NotificationService {
 
 	@Autowired
 	@Qualifier("HTNotificationDao")
-	NotificationDao notificationDao;
-	
+	private NotificationDao notificationDao;
+
 	public List<Notification> getAllNotifications() throws DaoException {
 		return notificationDao.getAllNotifications();
+	}
+
+	public Notification getNotificationById(int id) throws DaoException {
+		return notificationDao.getNotificationById(id);
+	}
+
+	public void addNotification(Notification notification) throws DaoException {
+		notificationDao.addNotification(notification);
 	}
 }

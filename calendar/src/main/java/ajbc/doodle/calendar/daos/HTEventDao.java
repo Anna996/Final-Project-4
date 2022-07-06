@@ -33,7 +33,7 @@ public class HTEventDao implements EventDao {
 		Event event = template.get(Event.class, id);
 		
 		if(event == null) {
-			throw new DaoException("There are no such event in DB");
+			throw new DaoException("There is no such event in DB");
 		}
 		
 		return event;

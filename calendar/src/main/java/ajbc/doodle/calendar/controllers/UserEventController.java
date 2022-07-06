@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,20 @@ public class UserEventController {
 
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "try again later...");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
+
+	@GetMapping("/{userId}/{eventId}")
+	public ResponseEntity<?> getUserEventByIDs(@PathVariable int userId, @PathVariable int eventId) {
+
+		try {
+			UserEvent userEvent = userEventService.getUserEventByIDs(userId, eventId);
+			return ResponseEntity.ok(userEvent);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(),
+					"userId: %s , eventId: %s".formatted(userId, eventId));
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
