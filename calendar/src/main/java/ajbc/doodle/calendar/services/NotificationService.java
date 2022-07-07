@@ -38,22 +38,11 @@ public class NotificationService {
 	}
 
 	public void addNotification(Notification notification) throws DaoException {
-		
 		int userId = notification.getUserId();
 		int eventId = notification.getEventId();
-		
-		Event event = eventDao.getEventById(eventId);
 		User user = userDao.getUserById(userId);
-
-		if(user == null) {
-			throw new DaoException("user doesn't exist in DB");
-		}
-		
 		userDao.assertUserIsLoggedIn(user);
-		
-		if(event == null) {
-			throw new DaoException("event doesn't exist in DB");
-		}
+		Event event = eventDao.getEventById(eventId);
 		
 		// check if -event and user- exist in UserEvent Table
 		// if not -> throw exception

@@ -30,11 +30,11 @@ public class EventController {
 	@Autowired
 	private EventService eventService;
 
-	@Autowired
-	private UserService userService;
-
-	@Autowired
-	private NotificationService notificationService;
+//	@Autowired
+//	private UserService userService;
+//
+//	@Autowired
+//	private NotificationService notificationService;
 
 //	@Autowired
 //	private UserEventService userEventService;
@@ -78,45 +78,19 @@ public class EventController {
 	@PostMapping
 	public ResponseEntity<?> addEvent(@RequestBody Event event, @RequestParam(required = true) int userId) {
 
-		User user;
-
 		try {
-			user = userService.getUserById(userId);
-			assertUserLoggedIn(user);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "user id: " + userId);
-			return ResponseEntity.status(500).body(eMessage);
-		}
-
-		try {
-			event.addUser(user);
-			eventService.addEvent(event);
-//			event.addDefaultNotification(user);
+			eventService.addEvent(event, userId);
 			Event fromDB = eventService.getEventById(event.getId());
-
-			// TODO get out for update, use notification creator
-
-			Notification notification = fromDB.createDefaultNotification(user);
-			notificationService.addNotification(notification);
-		
-			fromDB = eventService.getEventById(event.getId());
 			return ResponseEntity.status(HttpStatus.CREATED).body(fromDB);
 
 		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), getEventIdMessage(event.getId()));
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to create this event");
 			return ResponseEntity.status(500).body(eMessage);
 		}
 	}
 
 	private String getEventIdMessage(int id) {
 		return "event id: " + id;
-	}
-
-	private void assertUserLoggedIn(User user) throws DaoException {
-		if (!user.isLoggedIn()) {
-			throw new DaoException("You must log in first");
-		}
 	}
 
 	/**

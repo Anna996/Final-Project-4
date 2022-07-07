@@ -57,7 +57,7 @@ public class HTEventDao implements EventDao {
 	@Override
 	public Event getSpecificEventOfUser(int userId, int eventId) throws DaoException {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class, "e");
-		criteria.createCriteria("e.users", "user", JoinType.LEFT_OUTER_JOIN);
+		criteria.createAlias("e.users", "user", JoinType.LEFT_OUTER_JOIN);
 		criteria.add(Restrictions.idEq(eventId));
 		criteria.add(Restrictions.eq("user.id", userId));
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);

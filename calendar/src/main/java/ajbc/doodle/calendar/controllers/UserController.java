@@ -75,7 +75,7 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.CREATED).body(fromDB);	
 			
 		} catch (DaoException e) {
-			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), getUserIdMessage(user.getId()));
+			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), "failed to create this user");
 			return ResponseEntity.status(500).body(eMessage);
 		}
 	}
