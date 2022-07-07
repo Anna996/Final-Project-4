@@ -50,6 +50,7 @@ public class Event {
 	@Column(name = "RepeatEvent")
 	@Enumerated(EnumType.STRING)
 	private Repeat repeat;
+	private Integer ownerId;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)

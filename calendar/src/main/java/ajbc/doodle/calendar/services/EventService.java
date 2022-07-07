@@ -42,6 +42,7 @@ public class EventService {
 		User user = userDao.getUserById(userId);
 		userDao.assertUserIsLoggedIn(user);
 
+		event.setOwnerId(userId);
 		event.addUser(user);
 		eventDao.addEvent(event);
 
