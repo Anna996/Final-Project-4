@@ -16,7 +16,6 @@ import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.ErrorMessage;
 import ajbc.doodle.calendar.entities.Notification;
 import ajbc.doodle.calendar.services.NotificationService;
-import ajbc.doodle.calendar.services.UserEventService;
 
 @RestController
 @RequestMapping("/notifications")
@@ -25,8 +24,8 @@ public class NotificationController {
 	@Autowired
 	private NotificationService notificationService; 
 	
-	@Autowired
-	private UserEventService userEventService;
+//	@Autowired
+//	private UserEventService userEventService;
 	
 	/**
 	 * GET operations
@@ -54,26 +53,13 @@ public class NotificationController {
 	
 	@PostMapping
 	public ResponseEntity<?> addNotification(@RequestBody Notification notification){
-		
-		int eventId = notification.getEventId();
-		int userId = notification.getUserId();
-		
-		// check if event and user exist in UserEvent Table
-		try {
-			userEventService.getUserEventByIDs(userId, eventId);
-		} catch (DaoException e) {
-			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), "userId: %s , eventId: %s".formatted(userId, eventId));
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-		}
-		
-		// if true - add to DB
 		try {
 			notificationService.addNotification(notification);
 			Notification fromDB = notificationService.getNotificationById(notification.getId());
 			return ResponseEntity.status(HttpStatus.CREATED).body(fromDB);
 			
 		} catch (DaoException e) {
-			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), "notification id: " + notification.getId());
+			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), "failed to create this notification");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}

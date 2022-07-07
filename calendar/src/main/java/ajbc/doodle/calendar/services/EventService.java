@@ -28,4 +28,8 @@ public class EventService {
 	public void addEvent(Event event) throws DaoException {
 		eventDao.addEvent(event);
 	}
+	
+	public void updateEvent(Event event) throws DaoException {
+		eventDao.updateEvent(event);
+	}
 }

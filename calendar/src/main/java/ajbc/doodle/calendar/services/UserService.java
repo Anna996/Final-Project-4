@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.daos.UserDao;
-import ajbc.doodle.calendar.daos.UserEventDao;
 import ajbc.doodle.calendar.entities.User;
-import ajbc.doodle.calendar.entities.UserEvent;
 
 @Service
 public class UserService {
