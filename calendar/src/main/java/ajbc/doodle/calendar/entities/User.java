@@ -44,7 +44,7 @@ public class User {
 	private boolean isLoggedIn;
 
 	@ManyToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-	private List<Event> events = new ArrayList<Event>();
+	private Set<Event> events = new HashSet<Event>();
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "user" , fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
