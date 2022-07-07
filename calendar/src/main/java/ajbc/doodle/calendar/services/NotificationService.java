@@ -50,7 +50,6 @@ public class NotificationService {
 		
 		notification.setEvent(event);
 		notification.setUser(user);
-		eventDao.updateEvent(event);
 		notificationDao.addNotification(notification);
 	}
 }
