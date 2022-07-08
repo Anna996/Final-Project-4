@@ -1,6 +1,8 @@
 package ajbc.doodle.calendar.daos;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
@@ -8,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
+import ajbc.doodle.calendar.entities.Event;
+import ajbc.doodle.calendar.entities.Notification;
 import ajbc.doodle.calendar.entities.User;
 
 @SuppressWarnings("unchecked")
@@ -19,13 +23,26 @@ public class HTUserDao implements UserDao {
 
 	@Override
 	public List<User> getAllUsers() throws DaoException {
-		DetachedCriteria criteria = DetachedCriteria.forClass(User.class,"u");
+		DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		List<User> users = (List<User>) template.findByCriteria(criteria);
 
 		if (users.isEmpty()) {
 			throw new DaoException("There are no users in DB");
 		}
+		
+		// filter: user has his events and also his own notifications for each event
+		users.forEach(user -> {
+			
+			Set<Event> events = user.getEvents().stream().map(event -> event.getCopy(event)).collect(Collectors.toSet());
+			
+			events.forEach(event -> {
+				Set<Notification> notifications = event.getNotifications().stream().filter(notification -> notification.getUserId() == user.getId()).collect(Collectors.toSet());
+				event.setNotifications(notifications);
+			});
+			
+			user.setEvents(events);
+		});
 
 		return users;
 	}
@@ -58,5 +75,5 @@ public class HTUserDao implements UserDao {
 			throw new DaoException(e.getMessage());
 		}
 	}
-	
+
 }

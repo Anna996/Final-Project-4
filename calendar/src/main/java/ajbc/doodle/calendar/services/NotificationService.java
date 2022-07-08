@@ -40,8 +40,7 @@ public class NotificationService {
 	public void addNotification(Notification notification) throws DaoException {
 		int userId = notification.getUserId();
 		int eventId = notification.getEventId();
-		User user = userDao.getUserById(userId);
-		userDao.assertUserIsLoggedIn(user);
+		User user = userDao.approveUserValiditaion(userId);
 		Event event = eventDao.getEventById(eventId);
 		
 		// check if -event and user- exist in UserEvent Table

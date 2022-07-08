@@ -23,6 +23,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,7 +31,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-
+@AllArgsConstructor
 @Entity
 @Table(name = "Events")
 public class Event {
@@ -50,7 +51,7 @@ public class Event {
 	@Column(name = "RepeatEvent")
 	@Enumerated(EnumType.STRING)
 	private Repeat repeat;
-	private Integer ownerId;
+	private int ownerId;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -66,5 +67,10 @@ public class Event {
 
 	public Notification createDefaultNotification(User user) {
 		return new Notification(start, title, description, this.id, user.getId(), this, user);
+	}
+
+	public Event getCopy(Event event) {
+		return new Event(event.id, event.title, event.description, event.address, event.isAllDay, event.start,
+				event.end, event.repeat, event.ownerId, null, event.notifications);
 	}
 }

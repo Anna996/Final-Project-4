@@ -27,4 +27,10 @@ public interface UserDao {
 			throw new DaoException("you have to log in first");
 		}
 	}
+	
+	public default User approveUserValiditaion(int userId) throws DaoException {
+		User user = getUserById(userId);
+		assertUserIsLoggedIn(user);
+		return user;
+	}
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,9 +31,9 @@ public class EventController {
 	@Autowired
 	private EventService eventService;
 
-//	@Autowired
-//	private UserService userService;
-//
+	@Autowired
+	private UserService userService;
+
 //	@Autowired
 //	private NotificationService notificationService;
 
@@ -69,6 +70,7 @@ public class EventController {
 //			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 //		}
 //	}
+	
 
 	/**
 	 * POST operations
@@ -97,6 +99,19 @@ public class EventController {
 	 * PUT operations
 	 * 
 	 */
+	
+	@PutMapping("/{id}/guests")
+	public ResponseEntity<?> addGuestsToEvent(@PathVariable("id") int eventId, @RequestParam(required = true) int userId, @RequestBody List<Integer> guestIds){
+		
+		try {
+			eventService.addGuestsToEvent(eventId, userId, guestIds);
+//			List<User> guests = userService.getUsersByIdList(guestsIds);
+			return ResponseEntity.ok(guestIds);
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to send this event to these guests");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
 
 	/**
 	 * DELETE operations

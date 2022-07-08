@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.daos.EventDao;
@@ -39,8 +41,7 @@ public class EventService {
 
 	public void addEvent(Event event, int userId) throws DaoException {
 
-		User user = userDao.getUserById(userId);
-		userDao.assertUserIsLoggedIn(user);
+		User user = userDao.approveUserValiditaion(userId);
 
 		event.setOwnerId(userId);
 		event.addUser(user);
@@ -55,4 +56,31 @@ public class EventService {
 	public void updateEvent(Event event) throws DaoException {
 		eventDao.updateEvent(event);
 	}
+
+	public void addGuestsToEvent(int eventId, int userId, List<Integer> guestIds) throws DaoException {
+		userDao.approveUserValiditaion(userId);
+		Event event = getEventById(eventId);
+
+		if (event.getOwnerId() != userId) {
+			throw new DaoException("you are not the owner");
+		}
+
+		for (Integer guestId : guestIds) {
+			try {
+				User guest = userDao.getUserById(guestId);
+				event.addUser(guest);
+				guest.addEvent(event);
+			} catch (DaoException e) {
+				throw new DaoException("guest with id [" + guestId + "] doesn't exist in DB");
+			}
+		}
+
+		eventDao.updateEvent(event);
+	}
+
+//	private User approveUserValiditaion(int userId) throws DaoException {
+//		User user = userDao.getUserById(userId);
+//		userDao.assertUserIsLoggedIn(user);
+//		return user;
+//	}
 }
