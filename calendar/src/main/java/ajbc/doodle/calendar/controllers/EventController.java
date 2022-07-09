@@ -1,6 +1,7 @@
 package ajbc.doodle.calendar.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,31 +47,65 @@ public class EventController {
 	 */
 
 	@GetMapping
-	public ResponseEntity<?> getAllEvents() {
+	public ResponseEntity<?> getAllEvents(@RequestParam(required = false) String start,
+			@RequestParam(required = false) String end) {
+		List<Event> events;
 
 		try {
-			List<Event> events = eventService.getAllEvents();
+			if (start != null && end != null) {
+				events = eventService.getEventsInRange(start, end);
+			} else {
+				events = eventService.getAllEvents();
+			}
+
 			return ResponseEntity.ok(events);
 
 		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "try again later...");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "fetching data failed");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
 
-//	@GetMapping("/user/{id}")
-//	public ResponseEntity<?> getEventsByUserId(@PathVariable("id") int userId){
-//		
-//		try {
-//			List<Event> events = eventService.getAllEvents();
-//			return ResponseEntity.ok(events);
-//			
-//		} catch (DaoException e) {
-//			ErrorMessage eMessage =  ErrorMessage.getErrorMessage(e.getMessage(), "try again later...");
-//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-//		}
-//	}
-	
+	@GetMapping("/user/{id}")
+	public ResponseEntity<?> getEventsByUserId(@PathVariable("id") int userId,
+			@RequestParam(required = false) String start, @RequestParam(required = false) String end) {
+		List<Event> events;
+
+		try {
+
+			if (start != null && end != null) {
+				events = eventService.getEventsInRangeByUserId(userId, start, end);
+			} else {
+				events = eventService.getEventsByUserId(userId);
+			}
+
+			return ResponseEntity.ok(events);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "fetching data failed");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
+
+	@GetMapping("/user/{id}/future")
+	public ResponseEntity<?> getFutureEventsByUserId(@PathVariable("id") int userId,
+			@RequestParam(required = false) Integer minutes, @RequestParam(required = false) Integer hours) {
+		List<Event> events;
+
+		try {
+			if (minutes != null && hours != null) {
+				events = eventService.getFutureEventsByUserIdMinutesAndHours(userId, minutes, hours);
+			} else {
+				events = eventService.getFutureEventsByUserId(userId);
+			}
+
+			return ResponseEntity.ok(events);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "fetching data failed");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
 
 	/**
 	 * POST operations
@@ -78,7 +113,21 @@ public class EventController {
 	 */
 
 	@PostMapping
-	public ResponseEntity<?> addEvent(@RequestBody Event event, @RequestParam(required = true) int userId) {
+	public ResponseEntity<?> addEvent(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
+
+		if (events == null || events.size() == 0) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to create event");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
+		}
+
+		if (events.size() == 1) {
+			return addOneEvent(events.get(0), userId);
+		}
+
+		return addEvents(events, userId);
+	}
+
+	public ResponseEntity<?> addOneEvent(Event event, int userId) {
 
 		try {
 			eventService.addEvent(event, userId);
@@ -91,6 +140,20 @@ public class EventController {
 		}
 	}
 
+	public ResponseEntity<?> addEvents(List<Event> events, int userId) {
+
+		try {
+			eventService.addEvents(events, userId);
+			events = eventService
+					.getEventsByIds(events.stream().map(event -> event.getId()).collect(Collectors.toList()));
+			return ResponseEntity.status(HttpStatus.CREATED).body(events);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to create these events");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
+
 	private String getEventIdMessage(int id) {
 		return "event id: " + id;
 	}
@@ -99,16 +162,18 @@ public class EventController {
 	 * PUT operations
 	 * 
 	 */
-	
+
 	@PutMapping("/{id}/guests")
-	public ResponseEntity<?> addGuestsToEvent(@PathVariable("id") int eventId, @RequestParam(required = true) int userId, @RequestBody List<Integer> guestIds){
-		
+	public ResponseEntity<?> addGuestsToEvent(@PathVariable("id") int eventId,
+			@RequestParam(required = true) int userId, @RequestBody List<Integer> guestIds) {
+
 		try {
 			eventService.addGuestsToEvent(eventId, userId, guestIds);
 //			List<User> guests = userService.getUsersByIdList(guestsIds);
 			return ResponseEntity.ok(guestIds);
 		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to send this event to these guests");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(),
+					"failed to send this event to these guests");
 			return ResponseEntity.status(500).body(eMessage);
 		}
 	}

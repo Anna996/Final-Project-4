@@ -1,6 +1,7 @@
 package ajbc.doodle.calendar.entities;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -72,5 +73,13 @@ public class Event {
 	public Event getCopy(Event event) {
 		return new Event(event.id, event.title, event.description, event.address, event.isAllDay, event.start,
 				event.end, event.repeat, event.ownerId, null, event.notifications);
+	}
+
+	public static LocalDateTime parseToLocalDateTime(String dateTime) {
+		return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+	}
+	
+	public static String getFormatExceptionMessage() {
+		return "The format should be of dd-MM-yyyy HH:mm ";
 	}
 }

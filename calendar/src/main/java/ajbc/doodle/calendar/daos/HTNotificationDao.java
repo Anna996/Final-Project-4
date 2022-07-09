@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,15 +18,18 @@ public class HTNotificationDao implements NotificationDao {
 	@Autowired
 	private HibernateTemplate template;
 
+	/**
+	 * GET operations
+	 * 
+	 */
+
 	@Override
 	public List<Notification> getAllNotifications() throws DaoException {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		
 		List<Notification> notifications = (List<Notification>) template.findByCriteria(criteria);
-
-		if (notifications.isEmpty()) {
-			throw new DaoException("There are no notifications in DB");
-		}
+		assertNotificationListNotNullable(notifications);
 
 		return notifications;
 	}
@@ -42,6 +46,23 @@ public class HTNotificationDao implements NotificationDao {
 	}
 
 	@Override
+	public List<Notification> getNotificationsByEventId(int eventId) throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
+		criteria.add(Restrictions.eq("eventId", eventId));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		
+		List<Notification> notifications = (List<Notification>) template.findByCriteria(criteria);
+		assertNotificationListNotNullable(notifications);
+		
+		return notifications;
+	}
+
+	/**
+	 * POST operations
+	 * 
+	 */
+
+	@Override
 	public void addNotification(Notification notification) throws DaoException {
 		try {
 			template.persist(notification);
@@ -50,4 +71,24 @@ public class HTNotificationDao implements NotificationDao {
 		}
 	}
 
+	/**
+	 * PUT operations
+	 * 
+	 */
+
+	/**
+	 * DELETE operations
+	 * 
+	 */
+
+	/**
+	 * private methods
+	 * 
+	 */
+	
+	public void assertNotificationListNotNullable(List<Notification> notifications) throws DaoException {
+		if(notifications == null) {
+			throw new DaoException("There are no notifications in DB");
+		}
+	}
 }

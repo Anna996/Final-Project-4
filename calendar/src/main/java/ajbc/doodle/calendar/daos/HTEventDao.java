@@ -1,6 +1,9 @@
 package ajbc.doodle.calendar.daos;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
@@ -11,6 +14,7 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
 import ajbc.doodle.calendar.entities.Event;
+import ajbc.doodle.calendar.entities.Notification;
 
 @SuppressWarnings("unchecked")
 @Repository("HTEventDao")
@@ -19,28 +23,20 @@ public class HTEventDao implements EventDao {
 	@Autowired
 	private HibernateTemplate template;
 
+	/**
+	 * GET operations
+	 * 
+	 */
+
 	@Override
 	public List<Event> getAllEvents() throws DaoException {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class);
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-		List<Event> events = (List<Event>) template.findByCriteria(criteria);
 
-		if (events.isEmpty()) {
-			throw new DaoException("There are no events in DB");
-		}
+		List<Event> events = (List<Event>) template.findByCriteria(criteria);
+		assertListNotNull(events);
 
 		return events;
-	}
-
-	// TODO getEventsByUserId
-	@Override
-	public List<Event> getEventsByUserId(int id) throws DaoException {
-
-		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class);
-		criteria.add(Restrictions.eqOrIsNull("", id));
-
-		List<Event> events = null;
-		return null;
 	}
 
 	@Override
@@ -72,6 +68,81 @@ public class HTEventDao implements EventDao {
 	}
 
 	@Override
+	public List<Event> getEventsByUserId(int userId) throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class, "event");
+		criteria.createAlias("event.users", "user");
+		criteria.add(Restrictions.eq("user.id", userId));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+
+		List<Event> events = (List<Event>) template.findByCriteria(criteria);
+		assertListNotNull(events);
+		return filterByUserNotifications(events, userId);
+	}
+
+	@Override
+	public List<Event> getFutureEventsByUserId(int userId) throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class, "event");
+		criteria.createAlias("event.users", "user");
+		criteria.add(Restrictions.eq("user.id", userId));
+		criteria.add(Restrictions.gt("event.start", LocalDateTime.now()));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+
+		List<Event> events = (List<Event>) template.findByCriteria(criteria);
+		assertListNotNull(events);
+		return filterByUserNotifications(events, userId);
+	}
+
+	@Override
+	public List<Event> getEventsInRangeByUserId(int userId, LocalDateTime start, LocalDateTime end)
+			throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class, "event");
+		criteria.createAlias("event.users", "user");
+		criteria.add(Restrictions.eq("user.id", userId));
+		criteria.add(Restrictions.ge("event.start", start));
+		criteria.add(Restrictions.le("event.end", end));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+
+		List<Event> events = (List<Event>) template.findByCriteria(criteria);
+		assertListNotNull(events);
+		return filterByUserNotifications(events, userId);
+	}
+	
+	
+
+	@Override
+	public List<Event> getEventsInRange(LocalDateTime start, LocalDateTime end) throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class, "event");
+		criteria.add(Restrictions.ge("event.start", start));
+		criteria.add(Restrictions.le("event.end", end));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+
+		List<Event> events = (List<Event>) template.findByCriteria(criteria);
+		assertListNotNull(events);
+		return events;
+	}
+	
+
+	@Override
+	public List<Event> getFutureEventsByUserIdMinutesAndHours(int userId, int minutes, int hours) throws DaoException {
+		LocalDateTime futureTime = LocalDateTime.now().plusHours(hours).plusMinutes(minutes);
+		
+		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class, "event");
+		criteria.createAlias("event.users", "user");
+		criteria.add(Restrictions.eq("user.id", userId));
+		criteria.add(Restrictions.between("event.start", futureTime,futureTime.plusMinutes(1)));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+
+		List<Event> events = (List<Event>) template.findByCriteria(criteria);
+		assertListNotNull(events);
+		return filterByUserNotifications(events, userId);
+	}
+
+	/**
+	 * POST operations
+	 * 
+	 */
+
+	@Override
 	public void addEvent(Event event) throws DaoException {
 		try {
 			template.persist(event);
@@ -80,6 +151,11 @@ public class HTEventDao implements EventDao {
 		}
 	}
 
+	/**
+	 * PUT operations
+	 * 
+	 */
+
 	@Override
 	public void updateEvent(Event event) throws DaoException {
 		try {
@@ -87,5 +163,31 @@ public class HTEventDao implements EventDao {
 		} catch (Exception e) {
 			throw new DaoException(e.getMessage());
 		}
+	}
+
+	/**
+	 * DELETE operations
+	 * 
+	 */
+
+	/**
+	 * private methods
+	 * 
+	 */
+
+	private void assertListNotNull(List<Event> events) throws DaoException {
+		if (events == null) {
+			throw new DaoException("There are no events in DB");
+		}
+	}
+
+	private List<Event> filterByUserNotifications(List<Event> events, int userId) {
+		events.forEach(event -> {
+			Set<Notification> notifications = event.getNotifications().stream()
+					.filter(notification -> notification.getUserId() == userId).collect(Collectors.toSet());
+			event.setNotifications(notifications);
+		});
+
+		return events;
 	}
 }

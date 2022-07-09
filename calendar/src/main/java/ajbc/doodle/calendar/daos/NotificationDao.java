@@ -11,10 +11,33 @@ import ajbc.doodle.calendar.entities.Notification;
 @Transactional(readOnly = true, rollbackFor = DaoException.class)
 public interface NotificationDao {
 
+	/**
+	 * GET operations
+	 * 
+	 */
+
 	List<Notification> getAllNotifications() throws DaoException;
 
 	Notification getNotificationById(int id) throws DaoException;
+	
+	List<Notification> getNotificationsByEventId(int eventId) throws DaoException;
+
+	/**
+	 * POST operations
+	 * 
+	 */
 
 	@Transactional(readOnly = false)
 	void addNotification(Notification notification) throws DaoException;
+
+	/**
+	 * PUT operations
+	 * 
+	 */
+
+	/**
+	 * DELETE operations
+	 * 
+	 */
+
 }

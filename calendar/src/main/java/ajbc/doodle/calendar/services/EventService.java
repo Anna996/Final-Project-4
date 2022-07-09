@@ -1,5 +1,9 @@
 package ajbc.doodle.calendar.services;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,11 @@ public class EventService {
 	@Qualifier("HTNotificationDao")
 	private NotificationDao notificationDao;
 
+	/**
+	 * GET operations
+	 * 
+	 */
+
 	public List<Event> getAllEvents() throws DaoException {
 		return eventDao.getAllEvents();
 	}
@@ -38,6 +47,69 @@ public class EventService {
 	public Event getEventById(int id) throws DaoException {
 		return eventDao.getEventById(id);
 	}
+
+	public List<Event> getEventsByIds(List<Integer> ids) throws DaoException {
+		List<Event> events = new ArrayList<>();
+
+		for (Integer eventId : ids) {
+			events.add(eventDao.getEventById(eventId));
+		}
+
+		return events;
+	}
+
+	public List<Event> getEventsByUserId(int userId) throws DaoException {
+		userDao.approveUserValiditaion(userId);
+		return eventDao.getEventsByUserId(userId);
+	}
+
+	public List<Event> getFutureEventsByUserId(int userId) throws DaoException {
+		userDao.approveUserValiditaion(userId);
+		return eventDao.getFutureEventsByUserId(userId);
+	}
+
+	// TODO Controllers
+	
+	public List<Event> getEventsInRangeByUserId(int userId, String start, String end) throws DaoException {
+
+		userDao.approveUserValiditaion(userId);
+
+		LocalDateTime startDT, endDT;
+
+		try {
+			startDT = Event.parseToLocalDateTime(start);
+			endDT = Event.parseToLocalDateTime(end);
+
+		} catch (DateTimeParseException e) {
+			throw new DaoException(Event.getFormatExceptionMessage());
+		}
+
+		return eventDao.getEventsInRangeByUserId(userId, startDT, endDT);
+	}
+
+	public List<Event> getEventsInRange(String start, String end) throws DaoException {
+		LocalDateTime startDT, endDT;
+
+		try {
+			startDT = Event.parseToLocalDateTime(start);
+			endDT = Event.parseToLocalDateTime(end);
+
+		} catch (DateTimeParseException e) {
+			throw new DaoException(Event.getFormatExceptionMessage());
+		}
+		
+		return eventDao.getEventsInRange(startDT, endDT);
+	}
+	
+	public List<Event> getFutureEventsByUserIdMinutesAndHours(int userId, int minutes, int hours) throws DaoException {
+		userDao.approveUserValiditaion(userId);
+		return eventDao.getFutureEventsByUserIdMinutesAndHours(userId, minutes, hours);
+	}
+
+	/**
+	 * POST operations
+	 * 
+	 */
 
 	public void addEvent(Event event, int userId) throws DaoException {
 
@@ -52,6 +124,17 @@ public class EventService {
 		Notification notification = fromDB.createDefaultNotification(user);
 		notificationDao.addNotification(notification);
 	}
+
+	public void addEvents(List<Event> events, int userId) throws DaoException {
+		for (Event event : events) {
+			addEvent(event, userId);
+		}
+	}
+
+	/**
+	 * PUT operations
+	 * 
+	 */
 
 	public void updateEvent(Event event) throws DaoException {
 		eventDao.updateEvent(event);
@@ -78,9 +161,9 @@ public class EventService {
 		eventDao.updateEvent(event);
 	}
 
-//	private User approveUserValiditaion(int userId) throws DaoException {
-//		User user = userDao.getUserById(userId);
-//		userDao.assertUserIsLoggedIn(user);
-//		return user;
-//	}
+	/**
+	 * DELETE operations
+	 * 
+	 */
+
 }
