@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -123,6 +124,49 @@ public class NotificationController {
 	 * PUT operations
 	 * 
 	 */
+	
+	@PutMapping
+	public ResponseEntity<?> updateNotification(@RequestBody List<Notification> notifications) {
+
+		if (notifications == null || notifications.size() == 0) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notification info",
+					"failed to update notification");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
+		}
+
+		if (notifications.size() == 1) {
+			return updateOneNotification(notifications.get(0));
+		}
+
+		return updateListNotifications(notifications);
+	}
+
+	public ResponseEntity<?> updateOneNotification(Notification notification) {
+
+		try {
+			notificationService.updateNotification(notification);
+			Notification fromDB = notificationService.getNotificationById(notification.getId());
+			return ResponseEntity.status(HttpStatus.OK).body(fromDB);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to update this notification");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
+
+	public ResponseEntity<?> updateListNotifications(@RequestBody List<Notification> notifications) {
+		try {
+			notificationService.updateNotifications(notifications);
+			notifications = notificationService.getNotificationsByIds(
+					notifications.stream().map(notification -> notification.getId()).collect(Collectors.toList()));
+			return ResponseEntity.status(HttpStatus.OK).body(notifications);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to update these notifications");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
+
 
 	/**
 	 * DELETE operations

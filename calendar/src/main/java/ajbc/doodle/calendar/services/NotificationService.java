@@ -42,17 +42,17 @@ public class NotificationService {
 	public Notification getNotificationById(int id) throws DaoException {
 		return notificationDao.getNotificationById(id);
 	}
-	
+
 	public List<Notification> getNotificationsByIds(List<Integer> ids) throws DaoException {
 		List<Notification> notifications = new ArrayList<>();
-		
+
 		for (Integer notificationId : ids) {
 			notifications.add(getNotificationById(notificationId));
 		}
-		
+
 		return notifications;
 	}
-	
+
 	public List<Notification> getNotificationsByEventId(int eventId) throws DaoException {
 		// assert that this event exist
 		eventDao.getEventById(eventId);
@@ -65,6 +65,21 @@ public class NotificationService {
 	 */
 
 	public void addNotification(Notification notification) throws DaoException {
+		notification = checkNotification(notification);
+		notificationDao.addNotification(notification);
+	}
+
+	public void addNotifications(List<Notification> notifications) throws DaoException {
+		List<Notification> notificationsfromDB = new ArrayList<Notification>();
+
+		for (Notification notification : notifications) {
+			notificationsfromDB.add(checkNotification(notification));
+		}
+
+		notificationDao.addNotifications(notificationsfromDB);
+	}
+
+	private Notification checkNotification(Notification notification) throws DaoException {
 		int userId = notification.getUserId();
 		int eventId = notification.getEventId();
 		User user = userDao.getUserById(userId);
@@ -76,19 +91,34 @@ public class NotificationService {
 
 		notification.setEvent(event);
 		notification.setUser(user);
-		notificationDao.addNotification(notification);
-	}
-	
-	public void addNotifications(List<Notification> notifications) throws DaoException {
-		for (Notification notification : notifications) {
-			addNotification(notification);
-		}
+
+		return notification;
 	}
 
 	/**
 	 * PUT operations
 	 * 
 	 */
+
+	public void updateNotification(Notification notification) throws DaoException {
+		// assert that notification exists
+		getNotificationById(notification.getId());
+		notification = checkNotification(notification);
+		notificationDao.updateNotification(notification);
+	}
+
+	public void updateNotifications(List<Notification> notifications) throws DaoException {
+		List<Notification> notificationsfromDB = new ArrayList<Notification>();
+
+		for (Notification notification : notifications) {
+			// assert that notification exists
+			getNotificationById(notification.getId());
+			notification = checkNotification(notification);
+			notificationsfromDB.add(notification);
+		}
+
+		notificationDao.updateNotifications(notificationsfromDB);
+	}
 
 	/**
 	 * DELETE operations

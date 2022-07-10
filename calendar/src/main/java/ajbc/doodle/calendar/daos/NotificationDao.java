@@ -29,11 +29,20 @@ public interface NotificationDao {
 
 	@Transactional(readOnly = false)
 	void addNotification(Notification notification) throws DaoException;
+	
+	@Transactional(readOnly = false)
+	void addNotifications(List<Notification> notifications) throws DaoException;
 
 	/**
 	 * PUT operations
 	 * 
 	 */
+	
+	@Transactional(readOnly = false)
+	void updateNotification(Notification notification) throws DaoException;
+	
+	@Transactional(readOnly = false)
+	void updateNotifications(List<Notification> notifications) throws DaoException;
 
 	/**
 	 * DELETE operations

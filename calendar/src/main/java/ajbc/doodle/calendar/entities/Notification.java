@@ -11,8 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,10 +38,10 @@ public class Notification {
 	private LocalDateTime localDateTime;
 	private String title;
 	private String message;
-	
-	@Column(name = "EventID",insertable = false, updatable = false)
+
+	@Column(name = "EventID", insertable = false, updatable = false)
 	private int eventId;
-	
+
 	@Column(name = "UserID", insertable = false, updatable = false)
 	private int userId;
 
@@ -51,12 +49,11 @@ public class Notification {
 	@ManyToOne
 	@JoinColumn(name = "EventID")
 	private Event event;
-	
+
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "UserID")
 	private User user;
-
 
 	public Notification(LocalDateTime localDateTime, String title, String message, int eventId, int userId, Event event,
 			User user) {

@@ -27,7 +27,7 @@ public class HTNotificationDao implements NotificationDao {
 	public List<Notification> getAllNotifications() throws DaoException {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-		
+
 		List<Notification> notifications = (List<Notification>) template.findByCriteria(criteria);
 		assertNotificationListNotNullable(notifications);
 
@@ -50,10 +50,10 @@ public class HTNotificationDao implements NotificationDao {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
 		criteria.add(Restrictions.eq("eventId", eventId));
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-		
+
 		List<Notification> notifications = (List<Notification>) template.findByCriteria(criteria);
 		assertNotificationListNotNullable(notifications);
-		
+
 		return notifications;
 	}
 
@@ -64,10 +64,13 @@ public class HTNotificationDao implements NotificationDao {
 
 	@Override
 	public void addNotification(Notification notification) throws DaoException {
-		try {
+		template.persist(notification);
+	}
+
+	@Override
+	public void addNotifications(List<Notification> notifications) throws DaoException {
+		for (Notification notification : notifications) {
 			template.persist(notification);
-		} catch (Exception e) {
-			throw new DaoException(e.getMessage());
 		}
 	}
 
@@ -75,6 +78,18 @@ public class HTNotificationDao implements NotificationDao {
 	 * PUT operations
 	 * 
 	 */
+
+	@Override
+	public void updateNotification(Notification notification) throws DaoException {
+		template.merge(notification);
+	}
+
+	@Override
+	public void updateNotifications(List<Notification> notifications) throws DaoException {
+		for (Notification notification : notifications) {
+			template.merge(notification);
+		}
+	}
 
 	/**
 	 * DELETE operations
@@ -85,9 +100,9 @@ public class HTNotificationDao implements NotificationDao {
 	 * private methods
 	 * 
 	 */
-	
+
 	public void assertNotificationListNotNullable(List<Notification> notifications) throws DaoException {
-		if(notifications == null) {
+		if (notifications == null) {
 			throw new DaoException("There are no notifications in DB");
 		}
 	}
