@@ -23,7 +23,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 
@@ -45,6 +44,8 @@ public class Notification {
 	@Column(name = "UserID", insertable = false, updatable = false)
 	private int userId;
 
+	private boolean isActive;
+
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "EventID")
@@ -64,5 +65,12 @@ public class Notification {
 		this.userId = userId;
 		this.event = event;
 		this.user = user;
+	}
+
+	public Notification(int id, LocalDateTime localDateTime, String title, String message) {
+		this.id = id;
+		this.localDateTime = localDateTime;
+		this.title = title;
+		this.message = message;
 	}
 }

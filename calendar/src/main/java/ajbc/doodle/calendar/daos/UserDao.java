@@ -63,6 +63,12 @@ public interface UserDao {
 	 * DELETE operations
 	 * 
 	 */
+	
+	@Transactional(readOnly = false)
+	void deleteUser(User user) throws DaoException;
+	
+	@Transactional(readOnly = false)
+	void hardDeleteUser(User user) throws DaoException;
 
 	/**
 	 * Default methods

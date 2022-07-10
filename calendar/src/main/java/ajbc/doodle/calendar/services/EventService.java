@@ -113,22 +113,39 @@ public class EventService {
 
 	public void addEvent(Event event, int userId) throws DaoException {
 
+		event = checkEventToAdd(event, userId);
+		eventDao.addEvent(event);
+
+		Event fromDB = getEventById(event.getId());
+		addDefaultNotification(fromDB);
+	}
+
+	public void addEvents(List<Event> events, int userId) throws DaoException {
+		List<Event> eventsToAdd = new ArrayList<Event>();
+
+		for (Event event : events) {
+			eventsToAdd.add(checkEventToAdd(event, userId));
+		}
+
+		eventDao.addEvents(eventsToAdd);
+
+		for (Event event : eventsToAdd) {
+			addDefaultNotification(event);
+		}
+	}
+
+	private Event checkEventToAdd(Event event, int userId) throws DaoException {
 		User user = userDao.getUserById(userId);
 
 		event.setOwnerId(userId);
 		event.addUser(user);
-		eventDao.addEvent(event);
-
-		Event fromDB = getEventById(event.getId());
-
-		Notification notification = fromDB.createDefaultNotification(user);
-		notificationDao.addNotification(notification);
+		return event;
 	}
 
-	public void addEvents(List<Event> events, int userId) throws DaoException {
-		for (Event event : events) {
-			addEvent(event, userId);
-		}
+	private void addDefaultNotification(Event event) throws DaoException {
+		User user = userDao.getUserById(event.getOwnerId());
+		Notification notification = event.createDefaultNotification(user);
+		notificationDao.addNotification(notification);
 	}
 
 	/**
@@ -136,8 +153,31 @@ public class EventService {
 	 * 
 	 */
 
-	public void updateEvent(Event event) throws DaoException {
+	public void updateEvent(Event event, int userId) throws DaoException {
+		event = checkEventToUpdate(event, userId);
 		eventDao.updateEvent(event);
+	}
+
+	public void updateEvents(List<Event> events, int userId) throws DaoException {
+		List<Event> eventsToUpdate = new ArrayList<Event>();
+
+		for (Event event : events) {
+			eventsToUpdate.add(checkEventToUpdate(event, userId));
+		}
+		
+		eventDao.updateEvents(eventsToUpdate);
+	}
+
+	private Event checkEventToUpdate(Event event, int userId) throws DaoException {
+		Event fromDB = getEventById(event.getId());
+
+		if (fromDB.getOwnerId() != userId && fromDB.getOwnerId() != event.getOwnerId()) {
+			throw new DaoException("only the owner can update this event");
+		}
+
+		fromDB.copyEvent(event);
+		
+		return fromDB;
 	}
 
 	public void addGuestsToEvent(int eventId, int userId, List<Integer> guestIds) throws DaoException {
@@ -171,5 +211,5 @@ public class EventService {
 	 * 
 	 */
 	
-	
+
 }

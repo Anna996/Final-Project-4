@@ -105,11 +105,7 @@ public class HTUserDao implements UserDao {
 
 	@Override
 	public void addUser(User user) throws DaoException {
-		try {
-			template.persist(user);
-		} catch (Exception e) {
-			throw new DaoException(e.getMessage());
-		}
+		template.persist(user);
 	}
 
 	@Override
@@ -126,21 +122,13 @@ public class HTUserDao implements UserDao {
 
 	@Override
 	public void updateUser(User user) throws DaoException {
-		try {
-			template.merge(user);
-		} catch (Exception e) {
-			throw new DaoException(e.getMessage());
-		}
+		template.merge(user);
 	}
 
 	@Override
 	public void updateUsers(List<User> users) throws DaoException {
-		try {
-			for (User user : users) {
-				template.merge(user);
-			}
-		} catch (Exception e) {
-			throw new DaoException(e.getMessage());
+		for (User user : users) {
+			template.merge(user);
 		}
 	}
 
@@ -148,6 +136,19 @@ public class HTUserDao implements UserDao {
 	 * DELETE operations
 	 * 
 	 */
+	
+	
+
+	@Override
+	public void deleteUser(User user) throws DaoException {
+		user.setActive(false);
+		template.merge(user);
+	}
+
+	@Override
+	public void hardDeleteUser(User user) throws DaoException {
+		template.delete(user);
+	}
 
 	/**
 	 * Other methods
@@ -157,7 +158,7 @@ public class HTUserDao implements UserDao {
 	// filter: user has his events and also his own notifications for each event
 	@Override
 	public User filterByUserNotifications(User user) {
-		Set<Event> events = user.getEvents().stream().map(event -> event.getCopy(event)).collect(Collectors.toSet());
+		Set<Event> events = user.getEvents().stream().map(event -> event.getFullCopy(event)).collect(Collectors.toSet());
 
 		events = filterByUserNotifications(events, user.getId());
 		user.setEvents(events);

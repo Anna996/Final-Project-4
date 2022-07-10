@@ -35,12 +35,6 @@ public class EventController {
 	@Autowired
 	private UserService userService;
 
-//	@Autowired
-//	private NotificationService notificationService;
-
-//	@Autowired
-//	private UserEventService userEventService;
-
 	/**
 	 * GET operations
 	 * 
@@ -154,11 +148,52 @@ public class EventController {
 		}
 	}
 
-
 	/**
 	 * PUT operations
 	 * 
 	 */
+
+	@PutMapping
+	public ResponseEntity<?> updateEvent(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
+
+		if (events == null || events.size() == 0) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to update event");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
+		}
+
+		if (events.size() == 1) {
+			return updateOneEvent(events.get(0), userId);
+		}
+
+		return updateEvents(events, userId);
+	}
+
+	public ResponseEntity<?> updateOneEvent(Event event, int userId) {
+
+		try {
+			eventService.updateEvent(event, userId);
+			Event fromDB = eventService.getEventById(event.getId());
+			return ResponseEntity.ok(fromDB);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to update this event");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
+
+	public ResponseEntity<?> updateEvents(List<Event> events, int userId) {
+
+		try {
+			eventService.updateEvents(events, userId);
+			events = eventService
+					.getEventsByIds(events.stream().map(event -> event.getId()).collect(Collectors.toList()));
+			return ResponseEntity.ok(events);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to update these events");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
 
 	@PutMapping("/{id}/guests")
 	public ResponseEntity<?> addGuestsToEvent(@PathVariable("id") int eventId,

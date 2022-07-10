@@ -96,8 +96,35 @@ public class HTNotificationDao implements NotificationDao {
 	 * 
 	 */
 
+	@Override
+	public void deleteNotification(Notification notification) throws DaoException {
+		notification.setActive(false);
+		template.merge(notification);
+	}
+
+	@Override
+	public void deleteNotifications(List<Notification> notifications) throws DaoException {
+		for (Notification notification : notifications) {
+			notification.setActive(false);
+			template.merge(notification);
+		}
+	}
+
+	@Override
+	public void hardDeleteNotification(Notification notification) throws DaoException {
+		template.delete(notification);
+
+	}
+
+	@Override
+	public void hardDeleteNotifications(List<Notification> notifications) throws DaoException {
+		for (Notification notification : notifications) {
+			template.delete(notification);
+		}
+	}
+
 	/**
-	 * private methods
+	 * Other operations
 	 * 
 	 */
 

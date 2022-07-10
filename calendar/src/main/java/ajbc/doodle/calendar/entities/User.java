@@ -44,6 +44,7 @@ public class User {
 	private String email;
 	private LocalDate birthdate;
 	private boolean isLoggedIn;
+	private boolean isActive;
 
 	@ManyToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
 	private Set<Event> events = new HashSet<Event>();

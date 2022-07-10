@@ -53,6 +53,7 @@ public class Event {
 	@Enumerated(EnumType.STRING)
 	private Repeat repeat;
 	private int ownerId;
+	private boolean isActive;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -70,9 +71,19 @@ public class Event {
 		return new Notification(start, title, description, this.id, user.getId(), this, user);
 	}
 
-	public Event getCopy(Event event) {
+	public Event getFullCopy(Event event) {
 		return new Event(event.id, event.title, event.description, event.address, event.isAllDay, event.start,
-				event.end, event.repeat, event.ownerId, null, event.notifications);
+				event.end, event.repeat, event.ownerId, event.isActive,null, event.notifications);
+	}
+	
+	public void copyEvent(Event event) {
+		this.title = event.title;
+		this.description = event.description;
+		this.address = event.address;
+		this.isAllDay = event.isAllDay;
+		this.start = event.start;
+		this.end = event.end;
+		this.repeat = event.repeat;
 	}
 
 	public static LocalDateTime parseToLocalDateTime(String dateTime) {

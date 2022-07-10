@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -187,45 +188,10 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
-
-//	@PutMapping("/{id}/login/{email}")
-//	public ResponseEntity<?> login(@PathVariable int id, @PathVariable String email) {
-//		return updateIsLoggedIn(id, email, true);
-//	}
-//
-//	@PutMapping("/{id}/logout/{email}")
-//	public ResponseEntity<?> logout(@PathVariable int id, @PathVariable String email) {
-//		return updateIsLoggedIn(id, email, false);
-//	}
-//
-//	private ResponseEntity<?> updateIsLoggedIn(int id, String email, boolean isLoggedIn) {
-//		try {
-//
-//			User user = userService.getUserById(id);
-//
-//			if (!user.getEmail().equals(email)) {
-//				throw new DaoException("wrong email");
-//			}
-//
-//			if (user.isLoggedIn() == isLoggedIn) {
-//				throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
-//			}
-//
-//			user.setLoggedIn(isLoggedIn);
-//			userService.updateUser(user);
-//
-//			User fromDB = userService.getUserById(user.getId());
-//			return ResponseEntity.ok(fromDB);
-//
-//		} catch (DaoException e) {
-//			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), getUserIdMessage(id));
-//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-//		}
-//	}
 	
 	/**
 	 * DELETE operations
 	 * 
 	 */
-
+	
 }
