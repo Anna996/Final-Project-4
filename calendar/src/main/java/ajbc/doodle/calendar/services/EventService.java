@@ -61,18 +61,18 @@ public class EventService {
 	}
 
 	public List<Event> getEventsByUserId(int userId) throws DaoException {
-		userDao.approveUserValiditaion(userId);
+		userDao.assertUserExists(userId);
 		return eventDao.getEventsByUserId(userId);
 	}
 
 	public List<Event> getFutureEventsByUserId(int userId) throws DaoException {
-		userDao.approveUserValiditaion(userId);
+		userDao.assertUserExists(userId);
 		return eventDao.getFutureEventsByUserId(userId);
 	}
 
 	public List<Event> getEventsInRangeByUserId(int userId, String start, String end) throws DaoException {
 
-		userDao.approveUserValiditaion(userId);
+		userDao.assertUserExists(userId);
 
 		LocalDateTime startDT, endDT;
 
@@ -102,7 +102,7 @@ public class EventService {
 	}
 
 	public List<Event> getFutureEventsByUserIdMinutesAndHours(int userId, int minutes, int hours) throws DaoException {
-		userDao.approveUserValiditaion(userId);
+		userDao.assertUserExists(userId);
 		return eventDao.getFutureEventsByUserIdMinutesAndHours(userId, minutes, hours);
 	}
 
@@ -113,7 +113,7 @@ public class EventService {
 
 	public void addEvent(Event event, int userId) throws DaoException {
 
-		User user = userDao.approveUserValiditaion(userId);
+		User user = userDao.getUserById(userId);
 
 		event.setOwnerId(userId);
 		event.addUser(user);
@@ -141,7 +141,7 @@ public class EventService {
 	}
 
 	public void addGuestsToEvent(int eventId, int userId, List<Integer> guestIds) throws DaoException {
-		userDao.approveUserValiditaion(userId);
+		userDao.assertUserExists(userId);
 		Event event = getEventById(eventId);
 
 		if (event.getOwnerId() != userId) {

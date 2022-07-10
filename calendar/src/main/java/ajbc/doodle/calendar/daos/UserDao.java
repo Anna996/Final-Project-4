@@ -81,9 +81,8 @@ public interface UserDao {
 		}
 	}
 
-	default User approveUserValiditaion(int userId) throws DaoException {
-		User user = getUserById(userId);
-		assertUserIsLoggedIn(user);
-		return user;
+	default void assertUserExists(int userId) throws DaoException {
+		// if user doesn't exist, this method will throw DaoException
+		getUserById(userId);
 	}
 }
