@@ -36,7 +36,7 @@ public class HTUserDao implements UserDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		List<User> users = (List<User>) template.findByCriteria(criteria);
 
-		assertListNotNull(users);
+		assertNotNullable(users);
 		return users;
 	}
 
@@ -67,7 +67,7 @@ public class HTUserDao implements UserDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		List<User> users = (List<User>) template.findByCriteria(criteria);
 
-		assertListNotNull(users);
+		assertNotNullable(users);
 		return users;
 	}
 
@@ -80,7 +80,7 @@ public class HTUserDao implements UserDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		List<User> users = (List<User>) template.findByCriteria(criteria);
 
-		assertListNotNull(users);
+		assertNotNullable(users);
 		return users;
 	}
 
@@ -156,19 +156,20 @@ public class HTUserDao implements UserDao {
 		return events;
 	}
 	
-	public List<Event> filterByUserNotifications(List<Event> eventList, int userId) {
+	@Override
+	public List<Event> filterByUserNotifications(List<Event> events, int userId) {
 
-		Set<Event> eventSet = eventList.stream().collect(Collectors.toSet());
+		Set<Event> eventSet = events.stream().collect(Collectors.toSet());
 		
 		eventSet = filterByUserNotifications(eventSet, userId);
 
-		eventList = eventSet.stream().collect(Collectors.toList());
+		events = eventSet.stream().collect(Collectors.toList());
 		
-		return eventList;
+		return events;
 	}
 
 	@Override
-	public List<User> filterUserList(List<User> users){
+	public List<User> filterByUserNotifications(List<User> users){
 		return users.stream().map(user -> filterByUserNotifications(user)).collect(Collectors.toList());
 	}
 }

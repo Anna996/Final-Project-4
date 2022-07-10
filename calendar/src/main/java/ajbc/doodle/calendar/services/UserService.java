@@ -81,7 +81,11 @@ public class UserService {
 	}
 
 	public List<User> filterByUserNotifications(List<User> users) {
-		return userDao.filterUserList(users);
+		return userDao.filterByUserNotifications(users);
+	}
+	
+	public List<Event> filterByUserNotifications(List<Event> events, int userId){
+		return userDao.filterByUserNotifications(events, userId);
 	}
 
 	/**

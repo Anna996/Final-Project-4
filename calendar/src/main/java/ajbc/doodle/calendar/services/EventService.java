@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -68,8 +70,6 @@ public class EventService {
 		return eventDao.getFutureEventsByUserId(userId);
 	}
 
-	// TODO Controllers
-	
 	public List<Event> getEventsInRangeByUserId(int userId, String start, String end) throws DaoException {
 
 		userDao.approveUserValiditaion(userId);
@@ -97,10 +97,10 @@ public class EventService {
 		} catch (DateTimeParseException e) {
 			throw new DaoException(Event.getFormatExceptionMessage());
 		}
-		
+
 		return eventDao.getEventsInRange(startDT, endDT);
 	}
-	
+
 	public List<Event> getFutureEventsByUserIdMinutesAndHours(int userId, int minutes, int hours) throws DaoException {
 		userDao.approveUserValiditaion(userId);
 		return eventDao.getFutureEventsByUserIdMinutesAndHours(userId, minutes, hours);
@@ -166,4 +166,10 @@ public class EventService {
 	 * 
 	 */
 
+	/**
+	 * Other methods
+	 * 
+	 */
+	
+	
 }

@@ -30,7 +30,9 @@ public interface UserDao {
 
 	User filterByUserNotifications(User user);
 
-	List<User> filterUserList(List<User> users);
+	List<User> filterByUserNotifications(List<User> users);
+	
+	List<Event> filterByUserNotifications(List<Event> events, int userId);
 
 	/**
 	 * POST operations
@@ -66,6 +68,12 @@ public interface UserDao {
 			throw new DaoException("There is no such user in DB");
 		}
 	}
+	
+	default void assertNotNullable(List<User> users) throws DaoException {
+		if (users == null) {
+			throw new DaoException("There are no users in DB");
+		}
+	}
 
 	default void assertUserIsLoggedIn(User user) throws DaoException {
 		if (!user.isLoggedIn()) {
@@ -77,11 +85,5 @@ public interface UserDao {
 		User user = getUserById(userId);
 		assertUserIsLoggedIn(user);
 		return user;
-	}
-
-	default void assertListNotNull(List<User> users) throws DaoException {
-		if (users == null) {
-			throw new DaoException("There are no users in DB");
-		}
 	}
 }

@@ -79,7 +79,7 @@ public class EventController {
 				events = eventService.getEventsByUserId(userId);
 			}
 
-			return ResponseEntity.ok(events);
+			return ResponseEntity.ok(userService.filterByUserNotifications(events, userId));
 
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "fetching data failed");
@@ -99,7 +99,7 @@ public class EventController {
 				events = eventService.getFutureEventsByUserId(userId);
 			}
 
-			return ResponseEntity.ok(events);
+			return ResponseEntity.ok(userService.filterByUserNotifications(events, userId));
 
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "fetching data failed");

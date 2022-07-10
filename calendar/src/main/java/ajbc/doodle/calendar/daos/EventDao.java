@@ -27,13 +27,13 @@ public interface EventDao {
 	Event getSpecificEventOfUser(int userId, int eventId) throws DaoException;
 
 	List<Event> getFutureEventsByUserId(int userId) throws DaoException;
-	
+
 	List<Event> getEventsInRangeByUserId(int userId, LocalDateTime start, LocalDateTime end) throws DaoException;
-	
+
 	List<Event> getEventsInRange(LocalDateTime start, LocalDateTime end) throws DaoException;
-	
+
 	List<Event> getFutureEventsByUserIdMinutesAndHours(int userId, int minutes, int hours) throws DaoException;
-	
+
 	/**
 	 * POST operations
 	 * 
@@ -55,14 +55,18 @@ public interface EventDao {
 	 * 
 	 */
 
-	
-	
 	/**
 	 * Default methods
 	 * 
 	 */
-	
-	default void assertListNotNull(List<Event> events) throws DaoException {
+
+	default void assertNotNullable(Event event) throws DaoException {
+		if (event == null) {
+			throw new DaoException("There is no such event in DB");
+		}
+	}
+
+	default void assertNotNullable(List<Event> events) throws DaoException {
 		if (events == null) {
 			throw new DaoException("There are no events in DB");
 		}

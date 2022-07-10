@@ -34,7 +34,7 @@ public class HTEventDao implements EventDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
 		List<Event> events = (List<Event>) template.findByCriteria(criteria);
-		assertListNotNull(events);
+		assertNotNullable(events);
 
 		return events;
 	}
@@ -42,11 +42,7 @@ public class HTEventDao implements EventDao {
 	@Override
 	public Event getEventById(int id) throws DaoException {
 		Event event = template.get(Event.class, id);
-
-		if (event == null) {
-			throw new DaoException("There is no such event in DB");
-		}
-
+		assertNotNullable(event);
 		return event;
 	}
 
@@ -75,8 +71,8 @@ public class HTEventDao implements EventDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
 		List<Event> events = (List<Event>) template.findByCriteria(criteria);
-		assertListNotNull(events);
-		return filterByUserNotifications(events, userId);
+		assertNotNullable(events);
+		return events;
 	}
 
 	@Override
@@ -88,8 +84,8 @@ public class HTEventDao implements EventDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
 		List<Event> events = (List<Event>) template.findByCriteria(criteria);
-		assertListNotNull(events);
-		return filterByUserNotifications(events, userId);
+		assertNotNullable(events);
+		return events;
 	}
 
 	@Override
@@ -103,11 +99,9 @@ public class HTEventDao implements EventDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
 		List<Event> events = (List<Event>) template.findByCriteria(criteria);
-		assertListNotNull(events);
-		return filterByUserNotifications(events, userId);
+		assertNotNullable(events);
+		return events;
 	}
-	
-	
 
 	@Override
 	public List<Event> getEventsInRange(LocalDateTime start, LocalDateTime end) throws DaoException {
@@ -117,24 +111,23 @@ public class HTEventDao implements EventDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
 		List<Event> events = (List<Event>) template.findByCriteria(criteria);
-		assertListNotNull(events);
+		assertNotNullable(events);
 		return events;
 	}
-	
 
 	@Override
 	public List<Event> getFutureEventsByUserIdMinutesAndHours(int userId, int minutes, int hours) throws DaoException {
 		LocalDateTime futureTime = LocalDateTime.now().plusHours(hours).plusMinutes(minutes);
-		
+
 		DetachedCriteria criteria = DetachedCriteria.forClass(Event.class, "event");
 		criteria.createAlias("event.users", "user");
 		criteria.add(Restrictions.eq("user.id", userId));
-		criteria.add(Restrictions.between("event.start", futureTime,futureTime.plusMinutes(1)));
+		criteria.add(Restrictions.between("event.start", futureTime, futureTime.plusMinutes(1)));
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 
 		List<Event> events = (List<Event>) template.findByCriteria(criteria);
-		assertListNotNull(events);
-		return filterByUserNotifications(events, userId);
+		assertNotNullable(events);
+		return events;
 	}
 
 	/**
@@ -169,21 +162,4 @@ public class HTEventDao implements EventDao {
 	 * DELETE operations
 	 * 
 	 */
-
-	/**
-	 * private methods
-	 * 
-	 */
-
-
-	// TODO delete
-	private List<Event> filterByUserNotifications(List<Event> events, int userId) {
-		events.forEach(event -> {
-			Set<Notification> notifications = event.getNotifications().stream()
-					.filter(notification -> notification.getUserId() == userId).collect(Collectors.toSet());
-			event.setNotifications(notifications);
-		});
-
-		return events;
-	}
 }
