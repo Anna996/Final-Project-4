@@ -10,6 +10,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -79,7 +80,6 @@ public class HTUserDao implements UserDao {
 
 		return filterUserList(users);
 	}
-	
 
 	/**
 	 * POST operations
@@ -120,6 +120,7 @@ public class HTUserDao implements UserDao {
 			throw new DaoException(e.getMessage());
 		}
 	}
+
 
 	/**
 	 * DELETE operations

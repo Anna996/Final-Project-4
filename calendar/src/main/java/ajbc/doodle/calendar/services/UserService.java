@@ -99,6 +99,46 @@ public class UserService {
 		userDao.updateUser(user);
 	}
 
+//	public void updateUserLoggin(int id, String email, boolean isLoggedIn) throws DaoException {
+//	User user = getUserById(id);
+//
+//	if (!user.getEmail().equals(email)) {
+//		throw new DaoException("wrong email");
+//	}
+//
+//	if (user.isLoggedIn() == isLoggedIn) {
+//		throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
+//	}
+//
+//	user.setLoggedIn(isLoggedIn);
+//	updateUser(user);
+//}
+
+	public void updateUserLoggin(String email, boolean isLoggedIn) throws DaoException {
+		User user;
+
+		try {
+			user = getUserByEmail(email);
+		} catch (DaoException e) {
+			throw new DaoException("wrong email");
+		}
+
+		if (user.isLoggedIn() == isLoggedIn) {
+			throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
+		}
+
+		user.setLoggedIn(isLoggedIn);
+		updateUser(user);
+	}
+
+	public void loginUser(String email) throws DaoException {
+		updateUserLoggin(email, true);
+	}
+
+	public void logoutUser(String email) throws DaoException {
+		updateUserLoggin(email, false);
+	}
+
 	/**
 	 * DELETE operations
 	 * 

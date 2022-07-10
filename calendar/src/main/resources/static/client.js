@@ -5,6 +5,7 @@ const notificationOutput = document.getElementById('notification');
 
 const email = document.getElementById('email');
 const alert = document.getElementById('alert');
+const alert2 = document.getElementById('alert2');
 
 if ("serviceWorker" in navigator) {
 	try {
@@ -49,6 +50,7 @@ async function checkSubscription() {
 			unsubscribeButton.disabled = false;
 			email.disabled = true;
 			alert.style.display = "none";
+			alert2.style.display = "none";
 		}
 
 		return subscribed;
@@ -129,9 +131,11 @@ async function unsubscribe() {
 async function subscribe() {
 	if (email.value === "") {
 		alert.style.display = "block";
+		alert2.style.display = "none";
 		return;
 	} else {
 		alert.style.display = "none";
+		alert2.style.display = "none";
 	}
 	const registration = await navigator.serviceWorker.ready;
 	const subscription = await registration.pushManager.subscribe({
@@ -141,7 +145,7 @@ async function subscribe() {
 
 	console.info(`Subscribed to Push Service: ${subscription.endpoint}`);
 
-	await fetch("/subscribe/" + email.value, {
+	const response = await fetch("/subscribe/" + email.value, {
 		method: 'POST',
 		body: JSON.stringify(subscription),
 		headers: {
@@ -151,8 +155,14 @@ async function subscribe() {
 
 	console.info('Subscription info sent to the server');
 
-	subscribeButton.disabled = true;
-	unsubscribeButton.disabled = false;
-	email.disabled = true;
-
+	const subscribed = await response.json();
+	if (subscribed) {
+		subscribeButton.disabled = true;
+		unsubscribeButton.disabled = false;
+		email.disabled = true;
+		console.info("Subscription successed");
+	} else {
+		console.info("Subscription Failed, wrong email");
+		alert2.style.display = "block";
+	}
 }

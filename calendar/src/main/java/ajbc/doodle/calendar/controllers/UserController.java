@@ -1,6 +1,5 @@
 package ajbc.doodle.calendar.controllers;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -186,7 +185,7 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
-
+	
 	/**
 	 * DELETE operations
 	 * 

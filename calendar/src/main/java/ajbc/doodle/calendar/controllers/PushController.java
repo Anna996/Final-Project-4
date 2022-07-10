@@ -25,6 +25,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -41,14 +43,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ajbc.doodle.calendar.Application;
 import ajbc.doodle.calendar.ServerKeys;
+import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.Notification;
 import ajbc.doodle.calendar.entities.webpush.PushMessage;
 import ajbc.doodle.calendar.entities.webpush.Subscription;
 import ajbc.doodle.calendar.entities.webpush.SubscriptionEndpoint;
 import ajbc.doodle.calendar.services.CryptoService;
+import ajbc.doodle.calendar.services.UserService;
 
 @RestController
 public class PushController {
+
+	@Autowired
+	private UserService userService;
 
 	private final ServerKeys serverKeys;
 
@@ -87,21 +94,29 @@ public class PushController {
 		return this.serverKeys.getPublicKeyBase64();
 	}
 
-	// TODO re-write subscribe
 	@PostMapping("/subscribe/{email}")
-	@ResponseStatus(HttpStatus.CREATED)
-	public void subscribe(@RequestBody Subscription subscription, @PathVariable(required = false) String email) {
-		// if user is registered allow subscription
-		this.subscriptions.put(subscription.getEndpoint(), subscription);
-		System.out.println("Subscription added with email " + email);
+	public boolean subscribe(@RequestBody Subscription subscription, @PathVariable(required = false) String email) {
+		try {
+			userService.loginUser(email);
+			this.subscriptions.put(subscription.getEndpoint(), subscription);
+			System.out.println("Subscription added with email " + email);
+			return true;
+		} catch (DaoException e) {
+			System.out.println("User login failed: " + e.getMessage());
+			return false;
+		}
 	}
 
-	// TODO re-write unsubscribe
 	@PostMapping("/unsubscribe/{email}")
 	public void unsubscribe(@RequestBody SubscriptionEndpoint subscription,
 			@PathVariable(required = false) String email) {
-		this.subscriptions.remove(subscription.getEndpoint());
-		System.out.println("Subscription with email " + email + " got removed!");
+		try {
+			userService.logoutUser(email);
+			this.subscriptions.remove(subscription.getEndpoint());
+			System.out.println("Subscription with email " + email + " got removed!");
+		} catch (DaoException e) {
+			System.out.println("User Logout failed: " + e.getMessage());
+		}
 	}
 
 	@PostMapping("/isSubscribed")
@@ -118,7 +133,7 @@ public class PushController {
 		try {
 
 			Notification notification = new Notification(counter, LocalDateTime.now(), "Test notification",
-					"Test message",0,0,null, null);
+					"Test message", 1, 1, null, null);
 			sendPushMessageToAllSubscribers(this.subscriptions,
 					new PushMessage("message: " + counter, notification.toString()));
 			System.out.println(notification);
@@ -129,7 +144,6 @@ public class PushController {
 
 	}
 
-	// TODO re-write PushMessage 2
 	private void sendPushMessageToAllSubscribersWithoutPayload() {
 		Set<String> failedSubscriptions = new HashSet<>();
 		for (Subscription subscription : this.subscriptions.values()) {
@@ -141,7 +155,6 @@ public class PushController {
 		failedSubscriptions.forEach(this.subscriptions::remove);
 	}
 
-	// TODO re-write PushMessage
 	private void sendPushMessageToAllSubscribers(Map<String, Subscription> subs, Object message)
 			throws JsonProcessingException {
 
@@ -228,4 +241,5 @@ public class PushController {
 
 		return false;
 	}
+
 }

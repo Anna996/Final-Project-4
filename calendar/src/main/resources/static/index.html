@@ -7,22 +7,26 @@
 <title>Doodle Calendar</title>
 <style>
 body {
-	background-color: powderblue;
+	background-color: #FDEDEC;
+	display: flex;
+	place-content: center;
+	font-family: monospace;
 }
 
 h1 {
-	color: blue;
+	color: black;
 	margin: 30px;
 }
 
 h2 {
-	color: blue;
+	color: black;
 	margin: 30px;
 }
 
 label {
-	color: blue;
+	color: black;
 	margin: 30px;
+	font-size: 16px;
 }
 
 p {
@@ -30,8 +34,9 @@ p {
 }
 
 #email {
-	width: 300px;
+	width: 200px;
 	margin: 30px;
+	
 }
 
 .field {
@@ -44,23 +49,30 @@ p {
 	display: none;
 }
 
+#alert2 {
+	color: red;
+	display: none;
+}
+
 #subscribeButton {
 	margin: 30px;
 }
+
+
 </style>
 </head>
 <body>
-	<h1>Doodle Calendar Notification Panel</h1>
-	<button id="subscribeButton">Subscribe</button>
-	<button id="unsubscribeButton" disabled>Unsubscribe</button>
-	<br />
-	<label>Email</label>
-	<input type="text" id="email">
-	<label id="alert"> Enter email before subscribing to
-		notification service</label>
+	<div>
+		<h1>Welcome to Doodle Calendar</h1>
+		<button id="subscribeButton">Login</button>
+		<button id="unsubscribeButton" disabled>Logout</button>
+		<br /> <label>Email</label> <input type="text" id="email"> <label
+			id="alert"> Enter email in order to log in</label><label
+			id="alert2"> user with this email doesn't exist</label>
 
-	<h2>Notification Information:</h2>
-	<div id="notification"></div>
-	<script src="client.js"></script>
+		<h2>Notification Information:</h2>
+		<div id="notification"></div>
+		<script src="client.js"></script>
+	</div>
 </body>
 </html>
