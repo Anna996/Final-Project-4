@@ -42,8 +42,8 @@ public class UserController {
 			} else {
 				users = userService.getAllUsers();
 			}
-
-			return ResponseEntity.ok(users);
+			
+			return ResponseEntity.ok(userService.filterByUserNotifications(users));
 
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "fetching data failed");
@@ -66,7 +66,7 @@ public class UserController {
 
 		try {
 			User user = userService.getUserById(id);
-			return ResponseEntity.ok(user);
+			return ResponseEntity.ok(userService.filterByUserNotifications(user));
 
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), getUserIdMessage(id));
@@ -77,7 +77,7 @@ public class UserController {
 	private ResponseEntity<?> getUserByEmail(String email) {
 		try {
 			User user = userService.getUserByEmail(email);
-			return ResponseEntity.ok(user);
+			return ResponseEntity.ok(userService.filterByUserNotifications(user));
 
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "user email: " + email);
@@ -90,7 +90,7 @@ public class UserController {
 	public ResponseEntity<?> getUsersByEventId(@PathVariable("id") int eventId) {
 		try {
 			List<User> users = userService.getUsersByEventId(eventId);
-			return ResponseEntity.ok(users);
+			return ResponseEntity.ok(userService.filterByUserNotifications(users));
 
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "fetching data failed");

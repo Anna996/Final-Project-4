@@ -76,6 +76,14 @@ public class UserService {
 		return userDao.getUsersWithEventInRange(startDT, endDT);
 	}
 
+	public User filterByUserNotifications(User user) {
+		return userDao.filterByUserNotifications(user);
+	}
+
+	public List<User> filterByUserNotifications(List<User> users) {
+		return userDao.filterUserList(users);
+	}
+
 	/**
 	 * POST operations
 	 * 

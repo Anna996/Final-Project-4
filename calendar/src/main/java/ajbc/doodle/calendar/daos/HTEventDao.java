@@ -175,12 +175,8 @@ public class HTEventDao implements EventDao {
 	 * 
 	 */
 
-	private void assertListNotNull(List<Event> events) throws DaoException {
-		if (events == null) {
-			throw new DaoException("There are no events in DB");
-		}
-	}
 
+	// TODO delete
 	private List<Event> filterByUserNotifications(List<Event> events, int userId) {
 		events.forEach(event -> {
 			Set<Notification> notifications = event.getNotifications().stream()

@@ -21,18 +21,22 @@ public interface UserDao {
 	List<User> getAllUsers() throws DaoException;
 
 	User getUserById(int id) throws DaoException;
-	
+
 	User getUserByEmail(String email) throws DaoException;
 
 	List<User> getUsersByEventId(int eventId) throws DaoException;
-	
+
 	List<User> getUsersWithEventInRange(LocalDateTime start, LocalDateTime end) throws DaoException;
-	
+
+	User filterByUserNotifications(User user);
+
+	List<User> filterUserList(List<User> users);
+
 	/**
 	 * POST operations
 	 * 
 	 */
-	
+
 	@Transactional(readOnly = false)
 	void addUser(User user) throws DaoException;
 
@@ -46,33 +50,38 @@ public interface UserDao {
 
 	@Transactional(readOnly = false)
 	void updateUser(User user) throws DaoException;
-	
+
 	/**
 	 * DELETE operations
 	 * 
 	 */
 
-	
 	/**
 	 * Default methods
 	 * 
 	 */
-	
-	public default void assertNotNullable(User user) throws DaoException {
+
+	default void assertNotNullable(User user) throws DaoException {
 		if (user == null) {
 			throw new DaoException("There is no such user in DB");
 		}
 	}
 
-	public default void assertUserIsLoggedIn(User user) throws DaoException {
+	default void assertUserIsLoggedIn(User user) throws DaoException {
 		if (!user.isLoggedIn()) {
 			throw new DaoException("you have to log in first");
 		}
 	}
 
-	public default User approveUserValiditaion(int userId) throws DaoException {
+	default User approveUserValiditaion(int userId) throws DaoException {
 		User user = getUserById(userId);
 		assertUserIsLoggedIn(user);
 		return user;
+	}
+
+	default void assertListNotNull(List<User> users) throws DaoException {
+		if (users == null) {
+			throw new DaoException("There are no users in DB");
+		}
 	}
 }

@@ -36,7 +36,8 @@ public class HTUserDao implements UserDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		List<User> users = (List<User>) template.findByCriteria(criteria);
 
-		return filterUserList(users);
+		assertListNotNull(users);
+		return users;
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class HTUserDao implements UserDao {
 		User user = template.get(User.class, id);
 		assertNotNullable(user);
 
-		return filterNotificationsOfUser(user);
+		return user;
 	}
 
 	@Override
@@ -55,7 +56,7 @@ public class HTUserDao implements UserDao {
 		User user = ((List<User>) template.findByCriteria(criteria)).get(0);
 		assertNotNullable(user);
 
-		return filterNotificationsOfUser(user);
+		return user;
 	}
 
 	@Override
@@ -66,7 +67,8 @@ public class HTUserDao implements UserDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		List<User> users = (List<User>) template.findByCriteria(criteria);
 
-		return filterUserList(users);
+		assertListNotNull(users);
+		return users;
 	}
 
 	@Override
@@ -78,7 +80,8 @@ public class HTUserDao implements UserDao {
 		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		List<User> users = (List<User>) template.findByCriteria(criteria);
 
-		return filterUserList(users);
+		assertListNotNull(users);
+		return users;
 	}
 
 	/**
@@ -128,30 +131,44 @@ public class HTUserDao implements UserDao {
 	 */
 
 	/**
-	 * private methods
+	 * Other methods
 	 * 
 	 */
 
 	// filter: user has his events and also his own notifications for each event
-	private User filterNotificationsOfUser(User user) {
+	@Override
+	public User filterByUserNotifications(User user) {
 		Set<Event> events = user.getEvents().stream().map(event -> event.getCopy(event)).collect(Collectors.toSet());
-
-		events.forEach(event -> {
-			Set<Notification> notifications = event.getNotifications().stream()
-					.filter(notification -> notification.getUserId() == user.getId()).collect(Collectors.toSet());
-			event.setNotifications(notifications);
-		});
-
+		
+		events = filterByUserNotifications(events, user.getId());
 		user.setEvents(events);
 
 		return user;
 	}
+	
+	public Set<Event> filterByUserNotifications(Set<Event> events, int userId) {
+		events.forEach(event -> {
+			Set<Notification> notifications = event.getNotifications().stream()
+					.filter(notification -> notification.getUserId() == userId).collect(Collectors.toSet());
+			event.setNotifications(notifications);
+		});
 
-	private List<User> filterUserList(List<User> users) throws DaoException {
-		if (users == null) {
-			throw new DaoException("There are no users in DB");
-		}
+		return events;
+	}
+	
+	public List<Event> filterByUserNotifications(List<Event> eventList, int userId) {
 
-		return users.stream().map(user -> filterNotificationsOfUser(user)).collect(Collectors.toList());
+		Set<Event> eventSet = eventList.stream().collect(Collectors.toSet());
+		
+		eventSet = filterByUserNotifications(eventSet, userId);
+
+		eventList = eventSet.stream().collect(Collectors.toList());
+		
+		return eventList;
+	}
+
+	@Override
+	public List<User> filterUserList(List<User> users){
+		return users.stream().map(user -> filterByUserNotifications(user)).collect(Collectors.toList());
 	}
 }

@@ -100,6 +100,9 @@ public class PushController {
 			userService.loginUser(email);
 			this.subscriptions.put(subscription.getEndpoint(), subscription);
 			System.out.println("Subscription added with email " + email);
+			System.out.println("publicKey"+subscription.getKeys().getP256dh());
+			System.out.println("Auth"+subscription.getKeys().getAuth());
+			System.out.println("End Point"+subscription.getEndpoint());
 			return true;
 		} catch (DaoException e) {
 			System.out.println("User login failed: " + e.getMessage());

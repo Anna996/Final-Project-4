@@ -55,4 +55,16 @@ public interface EventDao {
 	 * 
 	 */
 
+	
+	
+	/**
+	 * Default methods
+	 * 
+	 */
+	
+	default void assertListNotNull(List<Event> events) throws DaoException {
+		if (events == null) {
+			throw new DaoException("There are no events in DB");
+		}
+	}
 }

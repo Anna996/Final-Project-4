@@ -154,9 +154,6 @@ public class EventController {
 		}
 	}
 
-	private String getEventIdMessage(int id) {
-		return "event id: " + id;
-	}
 
 	/**
 	 * PUT operations
@@ -169,8 +166,8 @@ public class EventController {
 
 		try {
 			eventService.addGuestsToEvent(eventId, userId, guestIds);
-//			List<User> guests = userService.getUsersByIdList(guestsIds);
-			return ResponseEntity.ok(guestIds);
+			List<User> guests = userService.getUsersByIds(guestIds);
+			return ResponseEntity.ok(userService.filterByUserNotifications(guests));
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(),
 					"failed to send this event to these guests");
