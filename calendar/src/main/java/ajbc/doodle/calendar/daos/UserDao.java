@@ -24,6 +24,8 @@ public interface UserDao {
 
 	User getUserByEmail(String email) throws DaoException;
 
+	boolean emailExists(String email);
+	
 	List<User> getUsersByEventId(int eventId) throws DaoException;
 
 	List<User> getUsersWithEventInRange(LocalDateTime start, LocalDateTime end) throws DaoException;
@@ -34,6 +36,7 @@ public interface UserDao {
 	
 	List<Event> filterByUserNotifications(List<Event> events, int userId);
 
+	
 	/**
 	 * POST operations
 	 * 
@@ -52,6 +55,9 @@ public interface UserDao {
 
 	@Transactional(readOnly = false)
 	void updateUser(User user) throws DaoException;
+	
+	@Transactional(readOnly = false)
+	void updateUsers(List<User> users) throws DaoException;
 
 	/**
 	 * DELETE operations

@@ -55,4 +55,12 @@ public class User {
 	public void addEvent(Event event) {
 		events.add(event);
 	}
+	
+	public void copyUser(User user) {
+		this.firstName = user.firstName;
+		this.lastName = user.lastName;
+		this.email = user.email;
+		this.birthdate = user.birthdate;
+		this.isLoggedIn = user.isLoggedIn;
+	}
 }

@@ -150,41 +150,78 @@ public class UserController {
 	 * PUT operations
 	 * 
 	 */
+	
+	@PutMapping
+	public ResponseEntity<?> updateUser(@RequestBody List<User> users){
 
-	@PutMapping("/{id}/login/{email}")
-	public ResponseEntity<?> login(@PathVariable int id, @PathVariable String email) {
-		return updateIsLoggedIn(id, email, true);
+		if (users == null || users.size() == 0) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get user info", "failed to update user");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
+		}
+
+		if (users.size() == 1) {
+			return updateOneUser(users.get(0));
+		}
+
+		return updateUserList(users);
 	}
-
-	@PutMapping("/{id}/logout/{email}")
-	public ResponseEntity<?> logout(@PathVariable int id, @PathVariable String email) {
-		return updateIsLoggedIn(id, email, false);
-	}
-
-	private ResponseEntity<?> updateIsLoggedIn(int id, String email, boolean isLoggedIn) {
+	
+	public ResponseEntity<?> updateOneUser( User user){
 		try {
-
-			User user = userService.getUserById(id);
-
-			if (!user.getEmail().equals(email)) {
-				throw new DaoException("wrong email");
-			}
-
-			if (user.isLoggedIn() == isLoggedIn) {
-				throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
-			}
-
-			user.setLoggedIn(isLoggedIn);
 			userService.updateUser(user);
-
 			User fromDB = userService.getUserById(user.getId());
-			return ResponseEntity.ok(fromDB);
-
+			return ResponseEntity.ok(userService.filterByUserNotifications(fromDB));
 		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), getUserIdMessage(id));
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), getUserIdMessage(user.getId()));
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
+	
+	public ResponseEntity<?> updateUserList( List<User> users){
+		try {
+			userService.updateUsers(users);
+			users = userService.getUsersByIds(users.stream().map(user -> user.getId()).collect(Collectors.toList()));
+			return ResponseEntity.ok(userService.filterByUserNotifications(users));
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to update these users");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
+
+//	@PutMapping("/{id}/login/{email}")
+//	public ResponseEntity<?> login(@PathVariable int id, @PathVariable String email) {
+//		return updateIsLoggedIn(id, email, true);
+//	}
+//
+//	@PutMapping("/{id}/logout/{email}")
+//	public ResponseEntity<?> logout(@PathVariable int id, @PathVariable String email) {
+//		return updateIsLoggedIn(id, email, false);
+//	}
+//
+//	private ResponseEntity<?> updateIsLoggedIn(int id, String email, boolean isLoggedIn) {
+//		try {
+//
+//			User user = userService.getUserById(id);
+//
+//			if (!user.getEmail().equals(email)) {
+//				throw new DaoException("wrong email");
+//			}
+//
+//			if (user.isLoggedIn() == isLoggedIn) {
+//				throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
+//			}
+//
+//			user.setLoggedIn(isLoggedIn);
+//			userService.updateUser(user);
+//
+//			User fromDB = userService.getUserById(user.getId());
+//			return ResponseEntity.ok(fromDB);
+//
+//		} catch (DaoException e) {
+//			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), getUserIdMessage(id));
+//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+//		}
+//	}
 	
 	/**
 	 * DELETE operations

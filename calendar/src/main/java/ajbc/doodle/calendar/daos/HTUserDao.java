@@ -53,10 +53,24 @@ public class HTUserDao implements UserDao {
 		DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
 		criteria.add(Restrictions.eq("email", email));
 
-		User user = ((List<User>) template.findByCriteria(criteria)).get(0);
-		assertNotNullable(user);
+		List<User> users = (List<User>) template.findByCriteria(criteria);
 
-		return user;
+		if (users.isEmpty()) {
+			throw new DaoException("This email doesn't exist in DB");
+		}
+
+		return users.get(0);
+	}
+
+	@Override
+	public boolean emailExists(String email) {
+		try {
+			// if email doesn't exist - throw DaoException
+			getUserByEmail(email);
+			return true;
+		} catch (DaoException e) {
+			return false;
+		}
 	}
 
 	@Override
@@ -91,11 +105,6 @@ public class HTUserDao implements UserDao {
 
 	@Override
 	public void addUser(User user) throws DaoException {
-		User fromDB = getUserByEmail(user.getEmail());
-		if (fromDB != null) {
-			throw new DaoException("This email already exist in DB: " + user.getEmail());
-		}
-
 		try {
 			template.persist(user);
 		} catch (Exception e) {
@@ -106,7 +115,7 @@ public class HTUserDao implements UserDao {
 	@Override
 	public void addUsers(List<User> users) throws DaoException {
 		for (User user : users) {
-			addUser(user);
+			template.persist(user);
 		}
 	}
 
@@ -124,6 +133,16 @@ public class HTUserDao implements UserDao {
 		}
 	}
 
+	@Override
+	public void updateUsers(List<User> users) throws DaoException {
+		try {
+			for (User user : users) {
+				template.merge(user);
+			}
+		} catch (Exception e) {
+			throw new DaoException(e.getMessage());
+		}
+	}
 
 	/**
 	 * DELETE operations
@@ -139,13 +158,13 @@ public class HTUserDao implements UserDao {
 	@Override
 	public User filterByUserNotifications(User user) {
 		Set<Event> events = user.getEvents().stream().map(event -> event.getCopy(event)).collect(Collectors.toSet());
-		
+
 		events = filterByUserNotifications(events, user.getId());
 		user.setEvents(events);
 
 		return user;
 	}
-	
+
 	public Set<Event> filterByUserNotifications(Set<Event> events, int userId) {
 		events.forEach(event -> {
 			Set<Notification> notifications = event.getNotifications().stream()
@@ -155,21 +174,21 @@ public class HTUserDao implements UserDao {
 
 		return events;
 	}
-	
+
 	@Override
 	public List<Event> filterByUserNotifications(List<Event> events, int userId) {
 
 		Set<Event> eventSet = events.stream().collect(Collectors.toSet());
-		
+
 		eventSet = filterByUserNotifications(eventSet, userId);
 
 		events = eventSet.stream().collect(Collectors.toList());
-		
+
 		return events;
 	}
 
 	@Override
-	public List<User> filterByUserNotifications(List<User> users){
+	public List<User> filterByUserNotifications(List<User> users) {
 		return users.stream().map(user -> filterByUserNotifications(user)).collect(Collectors.toList());
 	}
 }

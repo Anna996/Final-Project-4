@@ -83,8 +83,8 @@ public class UserService {
 	public List<User> filterByUserNotifications(List<User> users) {
 		return userDao.filterByUserNotifications(users);
 	}
-	
-	public List<Event> filterByUserNotifications(List<Event> events, int userId){
+
+	public List<Event> filterByUserNotifications(List<Event> events, int userId) {
 		return userDao.filterByUserNotifications(events, userId);
 	}
 
@@ -94,12 +94,22 @@ public class UserService {
 	 */
 
 	public void addUser(User user) throws DaoException {
+		checkUserToAdd(user);
 		userDao.addUser(user);
-		;
 	}
 
 	public void addUsers(List<User> users) throws DaoException {
+		for (User user : users) {
+			checkUserToAdd(user);
+		}
+		
 		userDao.addUsers(users);
+	}
+	
+	private void checkUserToAdd(User user) throws DaoException {
+		if (userDao.emailExists(user.getEmail())) {
+			throw new DaoException("This email already exist in DB: " + user.getEmail());
+		}
 	}
 
 	/**
@@ -108,23 +118,32 @@ public class UserService {
 	 */
 
 	public void updateUser(User user) throws DaoException {
+		user = checkUserToUpdate(user);
 		userDao.updateUser(user);
 	}
 
-//	public void updateUserLoggin(int id, String email, boolean isLoggedIn) throws DaoException {
-//	User user = getUserById(id);
-//
-//	if (!user.getEmail().equals(email)) {
-//		throw new DaoException("wrong email");
-//	}
-//
-//	if (user.isLoggedIn() == isLoggedIn) {
-//		throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
-//	}
-//
-//	user.setLoggedIn(isLoggedIn);
-//	updateUser(user);
-//}
+	public void updateUsers(List<User> users) throws DaoException {
+		List<User> usersFromDB = new ArrayList<User>();
+		
+		for (User user : users) {
+			usersFromDB.add(checkUserToUpdate(user));
+		}
+		
+		userDao.updateUsers(users);
+	}
+	
+	private User checkUserToUpdate(User user) throws DaoException {
+		User fromDB = userDao.getUserById(user.getId());
+
+		if (!fromDB.getEmail().equals(user.getEmail())) {
+			if (userDao.emailExists(user.getEmail())) {
+				throw new DaoException("The email already exists, try other email");
+			}
+		}
+
+		fromDB.copyUser(user);
+		return fromDB;
+	}
 
 	public void updateUserLoggin(String email, boolean isLoggedIn) throws DaoException {
 		User user;
