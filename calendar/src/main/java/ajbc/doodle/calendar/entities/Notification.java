@@ -1,6 +1,9 @@
 package ajbc.doodle.calendar.entities;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.springframework.format.datetime.joda.LocalDateParser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -72,5 +77,13 @@ public class Notification {
 		this.localDateTime = localDateTime;
 		this.title = title;
 		this.message = message;
+	}
+
+	public String getNotificationForClient() {
+		String date = localDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+		String time = localDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+
+		// id ; date ; time ; title ; message
+		return String.format("%s;%s;%s;%s;%s", id, date, time, title, message);
 	}
 }

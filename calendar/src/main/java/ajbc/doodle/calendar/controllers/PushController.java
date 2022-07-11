@@ -147,7 +147,7 @@ public class PushController {
 			Notification notification = new Notification(counter, LocalDateTime.now(), "Test notification",
 					"Test message");
 			sendPushMessageToAllSubscribers(this.subscriptions,
-					new PushMessage("message: " + counter, notification.toString()));
+					new PushMessage("message: " + counter, notification.getNotificationForClient()));
 			System.out.println(notification);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block

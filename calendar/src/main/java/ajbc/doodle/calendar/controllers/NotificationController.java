@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.ErrorMessage;
 import ajbc.doodle.calendar.entities.Notification;
+import ajbc.doodle.calendar.entities.NotificationManager;
 import ajbc.doodle.calendar.services.NotificationService;
 
 @RestController
@@ -27,8 +28,8 @@ public class NotificationController {
 	@Autowired
 	private NotificationService notificationService;
 
-//	@Autowired
-//	private UserEventService userEventService;
+	@Autowired
+	private NotificationManager manager;
 
 	/**
 	 * GET operations
@@ -99,6 +100,7 @@ public class NotificationController {
 		try {
 			notificationService.addNotification(notification);
 			Notification fromDB = notificationService.getNotificationById(notification.getId());
+			manager.addNotification(fromDB);
 			return ResponseEntity.status(HttpStatus.CREATED).body(fromDB);
 
 		} catch (DaoException e) {
@@ -112,6 +114,7 @@ public class NotificationController {
 			notificationService.addNotifications(notifications);
 			notifications = notificationService.getNotificationsByIds(
 					notifications.stream().map(notification -> notification.getId()).collect(Collectors.toList()));
+			manager.addNotifications(notifications);
 			return ResponseEntity.status(HttpStatus.CREATED).body(notifications);
 
 		} catch (DaoException e) {
@@ -146,6 +149,7 @@ public class NotificationController {
 		try {
 			notificationService.updateNotification(notification);
 			Notification fromDB = notificationService.getNotificationById(notification.getId());
+			manager.updateNotification(fromDB);
 			return ResponseEntity.status(HttpStatus.OK).body(fromDB);
 
 		} catch (DaoException e) {
@@ -159,6 +163,7 @@ public class NotificationController {
 			notificationService.updateNotifications(notifications);
 			notifications = notificationService.getNotificationsByIds(
 					notifications.stream().map(notification -> notification.getId()).collect(Collectors.toList()));
+			manager.updateNotifications(notifications);
 			return ResponseEntity.status(HttpStatus.OK).body(notifications);
 
 		} catch (DaoException e) {

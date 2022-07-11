@@ -81,18 +81,18 @@ function displayLastMessages() {
 		dataCache.match('notification')
 			.then(response => response ? response.text() : '')
 			.then(txt => {
-				notificationOutput.innerHTML = "";
-				notificationOutput.innerHTML = txt;
-				/*
-				txt = txt.split("(")[1];
-				txt = txt.split(")")[0];
-				txt = txt.split(",");
 
-				for (i = 0; i < txt.length; i++) {
-					line = txt[i].split("=");
-					notificationOutput.innerHTML += "<div><span class='field'>" + line[0] + "&emsp;</span><span class='value'>" + line[1] + "</span></h4>";
-				}
-				*/
+				// id - 0 ; date - 1 ; time - 2 ; title - 3 ; message - 4
+				txt = txt.split(";");
+
+				space = "&emsp;";
+				id = "<h2>notification #" + txt[0] + "</h2>";
+				title = "<h3> Title:" + space + txt[3] + "</h3>";
+				message = "<h3> Message:" + space + txt[4] + "</h3>";
+				date = "<h3> Date:" + space + txt[1] + "</h3>";
+				time = "<h3> Time:" + space + txt[2] + "</h3>";
+
+				notificationOutput.innerHTML = id + title + message + date + time;
 
 			});
 
@@ -120,7 +120,7 @@ async function unsubscribe() {
 			subscribeButton.disabled = false;
 			unsubscribeButton.disabled = true;
 			email.disabled = false;
-
+			notificationOutput.innerHTML = "";
 		}
 		else {
 			console.error('Unsubscription failed');

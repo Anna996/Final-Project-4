@@ -161,9 +161,9 @@ public class UserService {
 			throw new DaoException("wrong email");
 		}
 
-		if (user.isLoggedIn() == isLoggedIn) {
-			throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
-		}
+//		if (user.isLoggedIn() == isLoggedIn) {
+//			throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
+//		}
 
 		user.setLoggedIn(isLoggedIn);
 		updateUser(user);
