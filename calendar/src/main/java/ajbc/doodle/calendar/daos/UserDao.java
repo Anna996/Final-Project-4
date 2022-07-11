@@ -7,12 +7,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import ajbc.doodle.calendar.entities.Event;
+import ajbc.doodle.calendar.entities.SubscriptionData;
 import ajbc.doodle.calendar.entities.User;
 
 @Repository
 @Transactional(readOnly = true, rollbackFor = DaoException.class)
 public interface UserDao {
-
+	
 	/**
 	 * GET operations
 	 * 

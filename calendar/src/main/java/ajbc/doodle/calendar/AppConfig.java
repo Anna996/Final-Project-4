@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import ajbc.doodle.calendar.entities.Event;
 import ajbc.doodle.calendar.entities.Notification;
+import ajbc.doodle.calendar.entities.SubscriptionData;
 import ajbc.doodle.calendar.entities.User;
 
 
@@ -62,7 +63,7 @@ public class AppConfig {
 	public LocalSessionFactoryBean sessionFactory(DataSource  dataSource) {
 		LocalSessionFactoryBean factory = new LocalSessionFactoryBean();
 		factory.setDataSource(dataSource);
-		factory.setAnnotatedClasses(Notification.class, User.class, Event.class);
+		factory.setAnnotatedClasses(Notification.class, User.class, Event.class, SubscriptionData.class);
 		
 		Properties props = new Properties();
 		props.setProperty("hibernate.dialect", "org.hibernate.dialect.SQLServerDialect");

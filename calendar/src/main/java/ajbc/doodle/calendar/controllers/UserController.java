@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.ErrorMessage;
+import ajbc.doodle.calendar.entities.SubscriptionData;
 import ajbc.doodle.calendar.entities.User;
+import ajbc.doodle.calendar.services.SubscriptionDataService;
 import ajbc.doodle.calendar.services.UserService;
 
 @RestController
@@ -27,11 +29,14 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private SubscriptionDataService dataService;
 
 	/**
 	 * GET operations
 	 * 
-	 */
+	 */	
 
 	@GetMapping
 	public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String start, @RequestParam(required = false) String end) {
@@ -103,6 +108,18 @@ public class UserController {
 		return "user id: " + id;
 	}
 
+	
+	@GetMapping("/data")
+	public ResponseEntity<?> getData(){
+		try {
+			List<SubscriptionData> subscriptions =  dataService.getAllSubscriptions();
+			return ResponseEntity.ok(subscriptions);
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to fetch subscriptions data");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
+	
 	/**
 	 * POST operations
 	 * 
@@ -194,4 +211,6 @@ public class UserController {
 	 * 
 	 */
 	
+	
+
 }

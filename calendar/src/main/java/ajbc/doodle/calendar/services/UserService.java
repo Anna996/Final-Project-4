@@ -7,14 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.Column;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.daos.EventDao;
+import ajbc.doodle.calendar.daos.SubscriptionDataDao;
 import ajbc.doodle.calendar.daos.UserDao;
 import ajbc.doodle.calendar.entities.Event;
+import ajbc.doodle.calendar.entities.SubscriptionData;
 import ajbc.doodle.calendar.entities.User;
 
 @Service
@@ -28,6 +32,9 @@ public class UserService {
 	@Qualifier("HTEventDao")
 	private EventDao eventDao;
 
+	@Autowired
+	private SubscriptionDataService dataService; 
+		
 	/**
 	 * GET operations
 	 * 
@@ -145,7 +152,7 @@ public class UserService {
 		return fromDB;
 	}
 
-	public void updateUserLoggin(String email, boolean isLoggedIn) throws DaoException {
+	public User updateUserLoggin(String email, boolean isLoggedIn) throws DaoException {
 		User user;
 
 		try {
@@ -160,14 +167,27 @@ public class UserService {
 
 		user.setLoggedIn(isLoggedIn);
 		updateUser(user);
+		
+		return getUserByEmail(email);
 	}
 
-	public void loginUser(String email) throws DaoException {
-		updateUserLoggin(email, true);
+	public void loginUser(String email, String endPoint, String publicKey, String auth) throws DaoException {
+		User user = updateUserLoggin(email, true);
+		addUserSubscription(endPoint, publicKey, auth, user);
 	}
 
-	public void logoutUser(String email) throws DaoException {
+	public void logoutUser(String email, String endPoint) throws DaoException {
 		updateUserLoggin(email, false);
+		deleteSubscription(endPoint); 
+	}
+	
+	private void addUserSubscription(String endPoint, String publicKey, String auth, User user) throws DaoException {
+		SubscriptionData subscription = new SubscriptionData(endPoint,publicKey,auth,user.getId(), user);
+		dataService.addSubscription(subscription);
+	}
+	
+	private void deleteSubscription(String endPoint) throws DaoException {
+		dataService.deleteUserSubscription(endPoint);
 	}
 
 	/**

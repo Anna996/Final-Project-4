@@ -45,10 +45,12 @@ import ajbc.doodle.calendar.Application;
 import ajbc.doodle.calendar.ServerKeys;
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.Notification;
+import ajbc.doodle.calendar.entities.SubscriptionData;
 import ajbc.doodle.calendar.entities.webpush.PushMessage;
 import ajbc.doodle.calendar.entities.webpush.Subscription;
 import ajbc.doodle.calendar.entities.webpush.SubscriptionEndpoint;
 import ajbc.doodle.calendar.services.CryptoService;
+import ajbc.doodle.calendar.services.SubscriptionDataService;
 import ajbc.doodle.calendar.services.UserService;
 
 @RestController
@@ -56,6 +58,9 @@ public class PushController {
 
 	@Autowired
 	private UserService userService;
+
+//	@Autowired
+//	private SubscriptionDataService dataService; 
 
 	private final ServerKeys serverKeys;
 
@@ -97,12 +102,16 @@ public class PushController {
 	@PostMapping("/subscribe/{email}")
 	public boolean subscribe(@RequestBody Subscription subscription, @PathVariable(required = false) String email) {
 		try {
-			userService.loginUser(email);
+			userService.loginUser(email, subscription.getEndpoint(), subscription.getKeys().getP256dh(),
+					subscription.getKeys().getAuth());
 			this.subscriptions.put(subscription.getEndpoint(), subscription);
 			System.out.println("Subscription added with email " + email);
-			System.out.println("publicKey"+subscription.getKeys().getP256dh());
-			System.out.println("Auth"+subscription.getKeys().getAuth());
-			System.out.println("End Point"+subscription.getEndpoint());
+
+//			SubscriptionData subscriptionData = new SubscriptionData(subscription.getEndpoint(), subscription.getKeys().getP256dh(), subscription.getKeys().getAuth(), null, null)
+//			dataService
+//			System.out.println("publicKey size: " + subscription.getKeys().getP256dh().length());
+//			System.out.println("Auth size: " + subscription.getKeys().getAuth().length());
+//			System.out.println("End Point size: " + subscription.getEndpoint().length());
 			return true;
 		} catch (DaoException e) {
 			System.out.println("User login failed: " + e.getMessage());
@@ -114,7 +123,7 @@ public class PushController {
 	public void unsubscribe(@RequestBody SubscriptionEndpoint subscription,
 			@PathVariable(required = false) String email) {
 		try {
-			userService.logoutUser(email);
+			userService.logoutUser(email, subscription.getEndpoint());
 			this.subscriptions.remove(subscription.getEndpoint());
 			System.out.println("Subscription with email " + email + " got removed!");
 		} catch (DaoException e) {
