@@ -1,14 +1,10 @@
 package ajbc.doodle.calendar.entities;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,11 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.springframework.format.datetime.joda.LocalDateParser;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,7 +26,7 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "Notifications")
-public class Notification {
+public class Notification implements Comparable<Notification> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -79,11 +72,26 @@ public class Notification {
 		this.message = message;
 	}
 
+	@JsonIgnore
 	public String getNotificationForClient() {
 		String date = localDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 		String time = localDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
 
 		// id ; date ; time ; title ; message
 		return String.format("%s;%s;%s;%s;%s", id, date, time, title, message);
+	}
+
+	@Override
+	public int compareTo(Notification other) {
+		LocalDateTime time1 = this.localDateTime;
+		LocalDateTime time2 = other.localDateTime;
+
+		if (time1.isBefore(time2)) {
+			return -1;
+		}
+		if (time1.isAfter(time2)) {
+			return 1;
+		}
+		return 0;
 	}
 }

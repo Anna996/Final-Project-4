@@ -59,9 +59,6 @@ public class PushController {
 	@Autowired
 	private UserService userService;
 
-//	@Autowired
-//	private SubscriptionDataService dataService; 
-
 	private final ServerKeys serverKeys;
 
 	private final CryptoService cryptoService;
@@ -106,12 +103,6 @@ public class PushController {
 					subscription.getKeys().getAuth());
 			this.subscriptions.put(subscription.getEndpoint(), subscription);
 			System.out.println("Subscription added with email " + email);
-
-//			SubscriptionData subscriptionData = new SubscriptionData(subscription.getEndpoint(), subscription.getKeys().getP256dh(), subscription.getKeys().getAuth(), null, null)
-//			dataService
-//			System.out.println("publicKey size: " + subscription.getKeys().getP256dh().length());
-//			System.out.println("Auth size: " + subscription.getKeys().getAuth().length());
-//			System.out.println("End Point size: " + subscription.getEndpoint().length());
 			return true;
 		} catch (DaoException e) {
 			System.out.println("User login failed: " + e.getMessage());
@@ -136,24 +127,31 @@ public class PushController {
 		return this.subscriptions.containsKey(subscription.getEndpoint());
 	}
 
-	@Scheduled(fixedDelay = 3_000)
-	public void testNotification() {
-		if (this.subscriptions.isEmpty()) {
-			return;
-		}
-		counter++;
+//	@Scheduled(fixedDelay = 3_000)
+//	public void testNotification() {
+//		if (this.subscriptions.isEmpty()) {
+//			return;
+//		}
+//		counter++;
+//		try {
+//
+//			Notification notification = new Notification(counter, LocalDateTime.now(), "Test notification",
+//					"Test message");
+//			sendPushMessageToAllSubscribers(this.subscriptions,
+//					new PushMessage("message: " + counter, notification.getNotificationForClient()));
+//			System.out.println(notification);
+//		} catch (JsonProcessingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
+	
+	public void sendNotificationToUser(Map<String, Subscription> subs, String notificationInfo) {
 		try {
-
-			Notification notification = new Notification(counter, LocalDateTime.now(), "Test notification",
-					"Test message");
-			sendPushMessageToAllSubscribers(this.subscriptions,
-					new PushMessage("message: " + counter, notification.getNotificationForClient()));
-			System.out.println(notification);
+			sendPushMessageToAllSubscribers(subs, new PushMessage("You have new notification", notificationInfo));
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
-
 	}
 
 	private void sendPushMessageToAllSubscribersWithoutPayload() {

@@ -49,9 +49,9 @@ public class User {
 	@OneToMany(mappedBy = "user" , fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
 	private Set<Notification> notifications = new HashSet<>();
 	
-//	@JsonIgnore
-//	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-//	private Set<SubscriptionData> subscriptions = new HashSet<>();
+	@JsonIgnore
+	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+	private Set<SubscriptionData> subscriptions = new HashSet<>();
 	
 	public void addEvent(Event event) {
 		events.add(event);
