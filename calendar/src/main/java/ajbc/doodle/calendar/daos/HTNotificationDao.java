@@ -35,6 +35,18 @@ public class HTNotificationDao implements NotificationDao {
 	}
 
 	@Override
+	public List<Notification> getAllActivNotifications() throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
+		criteria.add(Restrictions.eq("isActive", true));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+
+		List<Notification> notifications = (List<Notification>) template.findByCriteria(criteria);
+		assertNotificationListNotNullable(notifications);
+
+		return notifications;
+	}
+
+	@Override
 	public Notification getNotificationById(int id) throws DaoException {
 		Notification notification = template.get(Notification.class, id);
 

@@ -25,10 +25,9 @@ import ajbc.doodle.calendar.services.UserService;
 
 @Component
 public class NotificationManager {
-
+	
+	private LocalDateTime nextDateTime;
 	private PriorityQueue<Notification> priorityQueue;
-
-	private long secondsToSleep;
 	private ScheduledExecutorService scheduledExecutorService;
 
 	@Autowired
@@ -42,81 +41,73 @@ public class NotificationManager {
 
 	public NotificationManager() {
 		priorityQueue = new PriorityQueue<Notification>();
-		scheduledExecutorService = Executors.newScheduledThreadPool(1);
 	}
 
 	@EventListener
 	public void start(ContextRefreshedEvent event) {
 		fetchNotificationFromDB();
-		secondsToSleep = getSecondsToSleepUntilNextNotification();
-		updateWakingTime(secondsToSleep);
+
+		if (!priorityQueue.isEmpty()) {
+			updateWakingTime(priorityQueue.peek().getLocalDateTime());
+		}
 	}
 
-	// TODO change to not deleted notifications
 	private void fetchNotificationFromDB() {
 
 		try {
-			List<Notification> notifications = notificationService.getAllNotifications();
+			List<Notification> notifications = notificationService.getAllActivNotifications();
 			priorityQueue.addAll(notifications);
 		} catch (DaoException e) {
 			System.err.println(e.getMessage());
 		}
 	}
 
-	public void updateWakingTime(long secondsToSleep) {
-		if (secondsToSleep == -1l) {
-			return;
+	private void updateWakingTime(LocalDateTime nextDateTime) {
+
+		this.nextDateTime = nextDateTime;
+
+		long secondsToSleep = getSecondsToSleepUntil(nextDateTime);
+
+		if (scheduledExecutorService != null) {
+			scheduledExecutorService.shutdownNow();
 		}
 
-		// TODO check if there is a need to update secondsToSleep
-
-//		scheduledExecutorService.shutdownNow();
-		scheduledExecutorService.schedule(() -> this.run(), 5, TimeUnit.SECONDS);
+		scheduledExecutorService = Executors.newScheduledThreadPool(1);
+		scheduledExecutorService.schedule(() -> this.run(), secondsToSleep, TimeUnit.SECONDS);
 	}
 
 	public void run() {
 
-		if (priorityQueue.isEmpty()) {
-			return;
-		}
-
 		List<Notification> readyToRun = new ArrayList<Notification>();
 		LocalDateTime timeInAMinute = LocalDateTime.now().plusMinutes(1);
 
-//		while (!priorityQueue.isEmpty() && priorityQueue.peek().getLocalDateTime().isBefore(timeInAMinute)) {
-//			readyToRun.add(priorityQueue.remove());
-//		}
-
-		readyToRun.add(priorityQueue.remove());
+		while (!priorityQueue.isEmpty() && priorityQueue.peek().getLocalDateTime().isBefore(timeInAMinute)) {
+			readyToRun.add(priorityQueue.remove());
+		}
 
 		ExecutorService executorService = Executors.newFixedThreadPool(readyToRun.size());
 
 		readyToRun.forEach(notification -> executorService
-				.execute(new NotificationSender(notification, userService, pushController)));
+				.execute(new NotificationSender(notification, userService, notificationService, pushController)));
 
-		// the next time to wake up
-		updateWakingTime(getSecondsToSleepUntilNextNotification());
+		if (priorityQueue.isEmpty()) {
+			this.nextDateTime = null;
+		} else {
+			updateWakingTime(priorityQueue.peek().getLocalDateTime());
+		}
 	}
 
-//	@Override
-//	public void run() {
-//
-////		NotificationSender sender = new NotificationSender(priorityQueue.remove(),userService, pushController );
-//		ExecutorService executorService = Executors.newFixedThreadPool(1);
-//		executorService.execute(new NotificationSender(priorityQueue.remove(),userService, pushController));
-//		
-////		sender.run();
-//	}
-
-	public long getSecondsToSleepUntilNextNotification() {
-		if (priorityQueue.isEmpty()) {
-			return -1;
-		}
-
-		return LocalDateTime.now().until(priorityQueue.peek().getLocalDateTime(), ChronoUnit.SECONDS);
+	private long getSecondsToSleepUntil(LocalDateTime dateTime) {
+		long secondsToSleep = LocalDateTime.now().until(dateTime, ChronoUnit.SECONDS);
+		return secondsToSleep < 1 ? 0 : secondsToSleep;
 	}
 
 	public void addNotification(Notification notification) {
+		priorityQueue.add(notification);
+
+		if (nextDateTime == null || notification.getLocalDateTime().isBefore(nextDateTime)) {
+			updateWakingTime(notification.getLocalDateTime());
+		}
 	}
 
 	public void addNotifications(List<Notification> notifications) {
@@ -124,7 +115,9 @@ public class NotificationManager {
 	}
 
 	public void updateNotification(Notification notification) {
-
+		if(priorityQueue.remove(notification)) {
+			addNotification(notification);
+		}
 	}
 
 	public void updateNotifications(List<Notification> notifications) {

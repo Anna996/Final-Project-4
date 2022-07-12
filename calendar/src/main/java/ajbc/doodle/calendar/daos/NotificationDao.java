@@ -17,6 +17,8 @@ public interface NotificationDao {
 	 */
 
 	List<Notification> getAllNotifications() throws DaoException;
+	
+	List<Notification> getAllActivNotifications() throws DaoException;
 
 	Notification getNotificationById(int id) throws DaoException;
 

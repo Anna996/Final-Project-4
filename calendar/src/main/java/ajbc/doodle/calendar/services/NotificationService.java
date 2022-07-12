@@ -38,6 +38,10 @@ public class NotificationService {
 	public List<Notification> getAllNotifications() throws DaoException {
 		return notificationDao.getAllNotifications();
 	}
+	
+	public List<Notification> getAllActivNotifications() throws DaoException {
+		return notificationDao.getAllActivNotifications();
+	}
 
 	public Notification getNotificationById(int id) throws DaoException {
 		return notificationDao.getNotificationById(id);
@@ -66,6 +70,7 @@ public class NotificationService {
 
 	public void addNotification(Notification notification) throws DaoException {
 		notification = checkNotification(notification);
+		notification.setActive(true);
 		notificationDao.addNotification(notification);
 	}
 
@@ -73,7 +78,9 @@ public class NotificationService {
 		List<Notification> notificationsfromDB = new ArrayList<Notification>();
 
 		for (Notification notification : notifications) {
-			notificationsfromDB.add(checkNotification(notification));
+			Notification checked = checkNotification(notification);
+			checked.setActive(true);
+			notificationsfromDB.add(checked);
 		}
 
 		notificationDao.addNotifications(notificationsfromDB);
@@ -118,6 +125,10 @@ public class NotificationService {
 		}
 
 		notificationDao.updateNotifications(notificationsfromDB);
+	}
+	
+	public void setNotActive(Notification notification) throws DaoException {
+		notificationDao.deleteNotification(notification);
 	}
 
 	/**
