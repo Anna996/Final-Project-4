@@ -37,7 +37,7 @@ public class SubscriptionData {
 	private Integer userId;
 	
 	@JsonIgnore
-	@ManyToOne(cascade = { CascadeType.MERGE })
+	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "UserID")
 	private User user;
 }

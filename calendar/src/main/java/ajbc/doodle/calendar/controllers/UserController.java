@@ -211,6 +211,29 @@ public class UserController {
 	 * 
 	 */
 	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> softDeleteUser( @PathVariable int id){
+		try {
+			userService.softDeleteUser(id);
+			User user = userService.getUserById(id);
+			return ResponseEntity.ok(user);
+			
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to delete this user");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
 	
-
+	@DeleteMapping("{id}/delete")
+	public ResponseEntity<?> hardDeleteUser(@PathVariable int id){
+		try {
+			User user = userService.getUserById(id);
+			userService.hardDeleteUser(user);
+			return ResponseEntity.ok(user);
+			
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to hard delete this user");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
+		}
+	}
 }

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -212,4 +213,85 @@ public class EventController {
 	 * 
 	 */
 
+	@DeleteMapping
+	public ResponseEntity<?> softDeleteEvent(@RequestBody List<Integer> eventIds) {
+
+		if (eventIds == null || eventIds.size() == 0) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to delete event");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
+		}
+
+		if (eventIds.size() == 1) {
+			return softDeleteOneEvent(eventIds.get(0));
+		}
+
+		return softDeleteEvents(eventIds);
+	}
+
+	public ResponseEntity<?> softDeleteOneEvent(int id) {
+
+		try {
+			eventService.softDeleteEvent(id);
+			Event fromDB = eventService.getEventById(id);
+			return ResponseEntity.ok(fromDB);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete this event");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
+
+	public ResponseEntity<?> softDeleteEvents(List<Integer> eventIds) {
+
+		try {
+			eventService.softDeleteEvents(eventIds);
+			List<Event> events = eventService.getEventsByIds(eventIds);
+			return ResponseEntity.ok(events);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete these events");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
+
+	@DeleteMapping("/delete")
+	public ResponseEntity<?> hardDeleteEvent(@RequestBody List<Integer> eventIds) {
+
+		if (eventIds == null || eventIds.size() == 0) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to delete event");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
+		}
+
+		if (eventIds.size() == 1) {
+			return hardDeleteOneEvent(eventIds.get(0));
+		}
+
+		return hardDeleteEvents(eventIds);
+	}
+
+	public ResponseEntity<?> hardDeleteOneEvent(int id) {
+
+		try {
+			Event fromDB = eventService.getEventById(id);
+			eventService.hardDeleteEvent(id);
+			return ResponseEntity.ok(fromDB);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete this event");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
+
+	public ResponseEntity<?> hardDeleteEvents(List<Integer> eventIds) {
+
+		try {
+			List<Event> events = eventService.getEventsByIds(eventIds);
+			eventService.hardDeleteEvents(eventIds);
+			return ResponseEntity.ok(events);
+
+		} catch (DaoException e) {
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete these events");
+			return ResponseEntity.status(500).body(eMessage);
+		}
+	}
 }

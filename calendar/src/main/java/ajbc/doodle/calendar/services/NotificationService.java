@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.daos.EventDao;
@@ -34,11 +35,11 @@ public class NotificationService {
 	 * GET operations
 	 * 
 	 */
-	
+
 	public List<Notification> getAllNotifications() throws DaoException {
 		return notificationDao.getAllNotifications();
 	}
-	
+
 	public List<Notification> getAllActivNotifications() throws DaoException {
 		return notificationDao.getAllActivNotifications();
 	}
@@ -74,16 +75,11 @@ public class NotificationService {
 		notificationDao.addNotification(notification);
 	}
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void addNotifications(List<Notification> notifications) throws DaoException {
-		List<Notification> notificationsfromDB = new ArrayList<Notification>();
-
 		for (Notification notification : notifications) {
-			Notification checked = checkNotification(notification);
-			checked.setActive(true);
-			notificationsfromDB.add(checked);
+			addNotification(notification);
 		}
-
-		notificationDao.addNotifications(notificationsfromDB);
 	}
 
 	private Notification checkNotification(Notification notification) throws DaoException {
@@ -114,21 +110,15 @@ public class NotificationService {
 		notificationDao.updateNotification(notification);
 	}
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void updateNotifications(List<Notification> notifications) throws DaoException {
-		List<Notification> notificationsfromDB = new ArrayList<Notification>();
-
 		for (Notification notification : notifications) {
-			// assert that notification exists
-			getNotificationById(notification.getId());
-			notification = checkNotification(notification);
-			notificationsfromDB.add(notification);
+			updateNotification(notification);
 		}
-
-		notificationDao.updateNotifications(notificationsfromDB);
 	}
-	
+
 	public void setNotActive(Notification notification) throws DaoException {
-		notificationDao.deleteNotification(notification);
+		notificationDao.softDeleteNotification(notification);
 	}
 
 	/**
@@ -136,4 +126,27 @@ public class NotificationService {
 	 * 
 	 */
 
+	public void softDeleteNotification(int id) throws DaoException {
+		Notification notification = notificationDao.getNotificationById(id);
+		notificationDao.softDeleteNotification(notification);
+	}
+
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
+	public void softDeleteNotifications(List<Integer> notificationIds) throws DaoException {
+		for (Integer id : notificationIds) {
+			softDeleteNotification(id);
+		}
+	}
+
+	public void hardDeleteNotification(int id) throws DaoException {
+		Notification notification = notificationDao.getNotificationById(id);
+		notificationDao.hardDeleteNotification(notification);
+	}
+
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
+	public void hardDeleteNotifications(List<Integer> notificationIds) throws DaoException {
+		for (Integer id : notificationIds) {
+			hardDeleteNotification(id);
+		}
+	}
 }

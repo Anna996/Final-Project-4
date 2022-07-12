@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -51,7 +52,7 @@ public class Notification implements Comparable<Notification> {
 	private Event event;
 
 	@JsonIgnore
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "UserID")
 	private User user;
 
@@ -64,13 +65,7 @@ public class Notification implements Comparable<Notification> {
 		this.userId = userId;
 		this.event = event;
 		this.user = user;
-	}
-
-	public Notification(int id, LocalDateTime localDateTime, String title, String message) {
-		this.id = id;
-		this.localDateTime = localDateTime;
-		this.title = title;
-		this.message = message;
+		this.isActive = true;
 	}
 
 	@JsonIgnore

@@ -17,7 +17,7 @@ public interface NotificationDao {
 	 */
 
 	List<Notification> getAllNotifications() throws DaoException;
-	
+
 	List<Notification> getAllActivNotifications() throws DaoException;
 
 	Notification getNotificationById(int id) throws DaoException;
@@ -32,9 +32,6 @@ public interface NotificationDao {
 	@Transactional(readOnly = false)
 	void addNotification(Notification notification) throws DaoException;
 
-	@Transactional(readOnly = false)
-	void addNotifications(List<Notification> notifications) throws DaoException;
-
 	/**
 	 * PUT operations
 	 * 
@@ -43,23 +40,15 @@ public interface NotificationDao {
 	@Transactional(readOnly = false)
 	void updateNotification(Notification notification) throws DaoException;
 
-	@Transactional(readOnly = false)
-	void updateNotifications(List<Notification> notifications) throws DaoException;
-
 	/**
 	 * DELETE operations
 	 * 
 	 */
 
 	@Transactional(readOnly = false)
-	void deleteNotification(Notification notification) throws DaoException;
-
-	@Transactional(readOnly = false)
-	void deleteNotifications(List<Notification> notifications) throws DaoException;
+	void softDeleteNotification(Notification notification) throws DaoException;
 
 	@Transactional(readOnly = false)
 	void hardDeleteNotification(Notification notification) throws DaoException;
 
-	@Transactional(readOnly = false)
-	void hardDeleteNotifications(List<Notification> notifications) throws DaoException;
 }

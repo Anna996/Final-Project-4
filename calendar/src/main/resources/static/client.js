@@ -95,7 +95,6 @@ function displayLastMessages() {
 				notificationOutput.innerHTML = id + title + message + date + time;
 
 			});
-
 	});
 }
 
@@ -156,13 +155,15 @@ async function subscribe() {
 	console.info('Subscription info sent to the server');
 
 	const subscribed = await response.json();
+	
+	
 	if (subscribed) {
 		subscribeButton.disabled = true;
 		unsubscribeButton.disabled = false;
 		email.disabled = true;
 		console.info("Subscription successed");
 	} else {
-		console.info("Subscription Failed, wrong email");
+		console.info("Subscription Failed");
 		alert2.style.display = "block";
 	}
 }

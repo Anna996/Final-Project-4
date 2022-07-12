@@ -12,6 +12,7 @@ import javax.persistence.Column;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.daos.EventDao;
@@ -33,8 +34,8 @@ public class UserService {
 	private EventDao eventDao;
 
 	@Autowired
-	private SubscriptionDataService dataService; 
-		
+	private SubscriptionDataService dataService;
+
 	/**
 	 * GET operations
 	 * 
@@ -82,8 +83,6 @@ public class UserService {
 
 		return userDao.getUsersWithEventInRange(startDT, endDT);
 	}
-	
-
 
 	public User filterByUserNotifications(User user) {
 		return userDao.filterByUserNotifications(user);
@@ -107,18 +106,19 @@ public class UserService {
 		userDao.addUser(user);
 	}
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void addUsers(List<User> users) throws DaoException {
 		for (User user : users) {
-			checkUserToAdd(user);
+			addUser(user);
 		}
-		
-		userDao.addUsers(users);
 	}
-	
+
 	private void checkUserToAdd(User user) throws DaoException {
 		if (userDao.emailExists(user.getEmail())) {
 			throw new DaoException("This email already exist in DB: " + user.getEmail());
 		}
+		
+		user.setActive(true);
 	}
 
 	/**
@@ -131,16 +131,13 @@ public class UserService {
 		userDao.updateUser(user);
 	}
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void updateUsers(List<User> users) throws DaoException {
-		List<User> usersFromDB = new ArrayList<User>();
-		
 		for (User user : users) {
-			usersFromDB.add(checkUserToUpdate(user));
+			updateUser(user);
 		}
-		
-		userDao.updateUsers(users);
 	}
-	
+
 	private User checkUserToUpdate(User user) throws DaoException {
 		User fromDB = userDao.getUserById(user.getId());
 
@@ -163,9 +160,13 @@ public class UserService {
 			throw new DaoException("wrong email");
 		}
 
+		if (!user.isActive()) {
+			throw new DaoException("This user is not active");
+		}
+
 		user.setLoggedIn(isLoggedIn);
 		updateUser(user);
-		
+
 		return getUserByEmail(email);
 	}
 
@@ -176,20 +177,41 @@ public class UserService {
 
 	public void logoutUser(String email, String endPoint) throws DaoException {
 		updateUserLoggin(email, false);
-		deleteSubscription(endPoint); 
+		deleteSubscription(endPoint);
 	}
-	
+
 	private void addUserSubscription(String endPoint, String publicKey, String auth, User user) throws DaoException {
-		SubscriptionData subscription = new SubscriptionData(endPoint,publicKey,auth,user.getId(), user);
+		SubscriptionData subscription = new SubscriptionData(endPoint, publicKey, auth, user.getId(), user);
 		dataService.addSubscription(subscription);
-	}
-	
-	private void deleteSubscription(String endPoint) throws DaoException {
-		dataService.deleteUserSubscription(endPoint);
 	}
 
 	/**
 	 * DELETE operations
 	 * 
 	 */
+
+	public void softDeleteUser(int id) throws DaoException {
+		User user = getUserById(id);
+		user.setActive(false);
+		user.setLoggedIn(false);
+		userDao.softDeleteUser(user);
+	}
+
+	public void hardDeleteUser(User user) throws DaoException {
+//		eventDao.deleteEvents(user.getEvents().stream().collect(Collectors.toList()));
+
+//		for (SubscriptionData subscription : user.getSubscriptions()) {
+//			deleteSubscription(subscription.getEndPoint());
+//		}
+
+		user.setEvents(null);
+//		user.setNotifications(null);
+		userDao.updateUser(user);
+		user = userDao.getUserById(user.getId());
+		userDao.hardDeleteUser(user);
+	}
+
+	private void deleteSubscription(String endPoint) throws DaoException {
+		dataService.deleteUserSubscription(endPoint);
+	}
 }

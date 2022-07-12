@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -120,17 +121,10 @@ public class EventService {
 		addDefaultNotification(fromDB);
 	}
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void addEvents(List<Event> events, int userId) throws DaoException {
-		List<Event> eventsToAdd = new ArrayList<Event>();
-
 		for (Event event : events) {
-			eventsToAdd.add(checkEventToAdd(event, userId));
-		}
-
-		eventDao.addEvents(eventsToAdd);
-
-		for (Event event : eventsToAdd) {
-			addDefaultNotification(event);
+			addEvent(event,userId);
 		}
 	}
 
@@ -139,6 +133,7 @@ public class EventService {
 
 		event.setOwnerId(userId);
 		event.addUser(user);
+		event.setActive(true);
 		return event;
 	}
 
@@ -158,14 +153,13 @@ public class EventService {
 		eventDao.updateEvent(event);
 	}
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void updateEvents(List<Event> events, int userId) throws DaoException {
-		List<Event> eventsToUpdate = new ArrayList<Event>();
-
 		for (Event event : events) {
-			eventsToUpdate.add(checkEventToUpdate(event, userId));
+			updateEvent(event, userId);
 		}
 		
-		eventDao.updateEvents(eventsToUpdate);
+//		eventDao.updateEvents(eventsToUpdate);
 	}
 
 	private Event checkEventToUpdate(Event event, int userId) throws DaoException {
@@ -205,11 +199,28 @@ public class EventService {
 	 * DELETE operations
 	 * 
 	 */
-
-	/**
-	 * Other methods
-	 * 
-	 */
 	
+	public void softDeleteEvent(int id) throws DaoException {
+		Event event = getEventById(id);
+		eventDao.softDeleteEvent(event);
+	}
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
+	public void softDeleteEvents(List<Integer> ids) throws DaoException {
+		for (Integer id : ids) {
+			softDeleteEvent(id);
+		}
+	}
+
+	public void hardDeleteEvent(int id) throws DaoException {
+		Event event = getEventById(id);
+		eventDao.hardDeleteEvent(event);
+	}
+
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
+	public void hardDeleteEvents(List<Integer> ids) throws DaoException {
+		for (Integer id : ids) {
+			hardDeleteEvent(id);
+		}
+	}
 }

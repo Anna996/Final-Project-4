@@ -140,13 +140,6 @@ public class HTEventDao implements EventDao {
 		template.persist(event);
 	}
 
-	@Override
-	public void addEvents(List<Event> events) throws DaoException {
-		for (Event event : events) {
-			template.persist(event);
-		}
-	}
-
 	/**
 	 * PUT operations
 	 * 
@@ -157,42 +150,20 @@ public class HTEventDao implements EventDao {
 		template.merge(event);
 	}
 
-	@Override
-	public void updateEvents(List<Event> events) throws DaoException {
-		for (Event event : events) {
-			template.merge(event);
-		}
-	}
-
 	/**
 	 * DELETE operations
 	 * 
 	 */
 
 	@Override
-	public void deleteEvent(Event event) throws DaoException {
+	public void softDeleteEvent(Event event) throws DaoException {
 		event.setActive(false);
 		template.merge(event);
-	}
-
-	@Override
-	public void deleteEvents(List<Event> events) throws DaoException {
-		for (Event event : events) {
-			event.setActive(false);
-			template.merge(event);
-		}
 	}
 
 	@Override
 	public void hardDeleteEvent(Event event) throws DaoException {
 		template.delete(event);
 
-	}
-
-	@Override
-	public void hardDeleteEvents(List<Event> events) throws DaoException {
-		for (Event event : events) {
-			template.delete(event);
-		}
 	}
 }

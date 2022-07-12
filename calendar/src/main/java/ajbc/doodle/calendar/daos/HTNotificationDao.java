@@ -79,13 +79,6 @@ public class HTNotificationDao implements NotificationDao {
 		template.persist(notification);
 	}
 
-	@Override
-	public void addNotifications(List<Notification> notifications) throws DaoException {
-		for (Notification notification : notifications) {
-			template.persist(notification);
-		}
-	}
-
 	/**
 	 * PUT operations
 	 * 
@@ -96,43 +89,20 @@ public class HTNotificationDao implements NotificationDao {
 		template.merge(notification);
 	}
 
-	@Override
-	public void updateNotifications(List<Notification> notifications) throws DaoException {
-		for (Notification notification : notifications) {
-			template.merge(notification);
-		}
-	}
-
 	/**
 	 * DELETE operations
 	 * 
 	 */
 
 	@Override
-	public void deleteNotification(Notification notification) throws DaoException {
+	public void softDeleteNotification(Notification notification) throws DaoException {
 		notification.setActive(false);
 		template.merge(notification);
 	}
 
 	@Override
-	public void deleteNotifications(List<Notification> notifications) throws DaoException {
-		for (Notification notification : notifications) {
-			notification.setActive(false);
-			template.merge(notification);
-		}
-	}
-
-	@Override
 	public void hardDeleteNotification(Notification notification) throws DaoException {
 		template.delete(notification);
-
-	}
-
-	@Override
-	public void hardDeleteNotifications(List<Notification> notifications) throws DaoException {
-		for (Notification notification : notifications) {
-			template.delete(notification);
-		}
 	}
 
 	/**

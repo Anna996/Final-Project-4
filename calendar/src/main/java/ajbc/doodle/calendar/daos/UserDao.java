@@ -13,7 +13,7 @@ import ajbc.doodle.calendar.entities.User;
 @Repository
 @Transactional(readOnly = true, rollbackFor = DaoException.class)
 public interface UserDao {
-	
+
 	/**
 	 * GET operations
 	 * 
@@ -26,7 +26,7 @@ public interface UserDao {
 	User getUserByEmail(String email) throws DaoException;
 
 	boolean emailExists(String email);
-	
+
 	List<User> getUsersByEventId(int eventId) throws DaoException;
 
 	List<User> getUsersWithEventInRange(LocalDateTime start, LocalDateTime end) throws DaoException;
@@ -34,10 +34,9 @@ public interface UserDao {
 	User filterByUserNotifications(User user);
 
 	List<User> filterByUserNotifications(List<User> users);
-	
+
 	List<Event> filterByUserNotifications(List<Event> events, int userId);
 
-	
 	/**
 	 * POST operations
 	 * 
@@ -46,9 +45,6 @@ public interface UserDao {
 	@Transactional(readOnly = false)
 	void addUser(User user) throws DaoException;
 
-	@Transactional(readOnly = false)
-	void addUsers(List<User> users) throws DaoException;
-
 	/**
 	 * PUT operations
 	 * 
@@ -56,17 +52,14 @@ public interface UserDao {
 
 	@Transactional(readOnly = false)
 	void updateUser(User user) throws DaoException;
-	
-	@Transactional(readOnly = false)
-	void updateUsers(List<User> users) throws DaoException;
 
 	/**
 	 * DELETE operations
 	 * 
 	 */
-	
+
 	@Transactional(readOnly = false)
-	void deleteUser(User user) throws DaoException;
+	void softDeleteUser(User user) throws DaoException;
 	
 	@Transactional(readOnly = false)
 	void hardDeleteUser(User user) throws DaoException;
@@ -81,7 +74,7 @@ public interface UserDao {
 			throw new DaoException("There is no such user in DB");
 		}
 	}
-	
+
 	default void assertNotNullable(List<User> users) throws DaoException {
 		if (users == null) {
 			throw new DaoException("There are no users in DB");

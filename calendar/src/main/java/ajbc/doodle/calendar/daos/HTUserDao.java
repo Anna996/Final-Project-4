@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import ajbc.doodle.calendar.entities.Event;
 import ajbc.doodle.calendar.entities.Notification;
@@ -109,13 +110,6 @@ public class HTUserDao implements UserDao {
 		template.persist(user);
 	}
 
-	@Override
-	public void addUsers(List<User> users) throws DaoException {
-		for (User user : users) {
-			template.persist(user);
-		}
-	}
-
 	/**
 	 * PUT operations
 	 * 
@@ -126,26 +120,16 @@ public class HTUserDao implements UserDao {
 		template.merge(user);
 	}
 
-	@Override
-	public void updateUsers(List<User> users) throws DaoException {
-		for (User user : users) {
-			template.merge(user);
-		}
-	}
-
 	/**
 	 * DELETE operations
 	 * 
 	 */
-	
-	
 
 	@Override
-	public void deleteUser(User user) throws DaoException {
-		user.setActive(false);
+	public void softDeleteUser(User user) throws DaoException {
 		template.merge(user);
 	}
-
+	
 	@Override
 	public void hardDeleteUser(User user) throws DaoException {
 		template.delete(user);
@@ -159,7 +143,8 @@ public class HTUserDao implements UserDao {
 	// filter: user has his events and also his own notifications for each event
 	@Override
 	public User filterByUserNotifications(User user) {
-		Set<Event> events = user.getEvents().stream().map(event -> event.getFullCopy(event)).collect(Collectors.toSet());
+		Set<Event> events = user.getEvents().stream().map(event -> event.getFullCopy(event))
+				.collect(Collectors.toSet());
 
 		events = filterByUserNotifications(events, user.getId());
 		user.setEvents(events);

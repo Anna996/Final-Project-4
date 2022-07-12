@@ -41,9 +41,6 @@ public interface EventDao {
 
 	@Transactional(readOnly = false)
 	void addEvent(Event event) throws DaoException;
-	
-	@Transactional(readOnly = false)
-	void addEvents(List<Event> events) throws DaoException;
 
 	/**
 	 * PUT operations
@@ -52,26 +49,17 @@ public interface EventDao {
 
 	@Transactional(readOnly = false)
 	void updateEvent(Event event) throws DaoException;
-	
-	@Transactional(readOnly = false)
-	void updateEvents(List<Event> events) throws DaoException;
 
 	/**
 	 * DELETE operations
 	 * 
 	 */
-	
+
 	@Transactional(readOnly = false)
-	void deleteEvent(Event event) throws DaoException;
-	
-	@Transactional(readOnly = false)
-	void deleteEvents(List<Event> events) throws DaoException;
-	
+	void softDeleteEvent(Event event) throws DaoException;
+
 	@Transactional(readOnly = false)
 	void hardDeleteEvent(Event event) throws DaoException;
-	
-	@Transactional(readOnly = false)
-	void hardDeleteEvents(List<Event> events) throws DaoException;
 
 	/**
 	 * Default methods
