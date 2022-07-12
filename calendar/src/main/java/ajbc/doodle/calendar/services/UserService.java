@@ -82,6 +82,8 @@ public class UserService {
 
 		return userDao.getUsersWithEventInRange(startDT, endDT);
 	}
+	
+
 
 	public User filterByUserNotifications(User user) {
 		return userDao.filterByUserNotifications(user);
@@ -160,10 +162,6 @@ public class UserService {
 		} catch (DaoException e) {
 			throw new DaoException("wrong email");
 		}
-
-//		if (user.isLoggedIn() == isLoggedIn) {
-//			throw new DaoException("you already logged " + (isLoggedIn ? "in :)" : "out"));
-//		}
 
 		user.setLoggedIn(isLoggedIn);
 		updateUser(user);

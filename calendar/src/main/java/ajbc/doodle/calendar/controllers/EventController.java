@@ -18,11 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.ErrorMessage;
 import ajbc.doodle.calendar.entities.Event;
-import ajbc.doodle.calendar.entities.Notification;
 import ajbc.doodle.calendar.entities.User;
-import ajbc.doodle.calendar.entities.UserType;
 import ajbc.doodle.calendar.services.EventService;
-import ajbc.doodle.calendar.services.NotificationService;
 import ajbc.doodle.calendar.services.UserService;
 
 @RestController

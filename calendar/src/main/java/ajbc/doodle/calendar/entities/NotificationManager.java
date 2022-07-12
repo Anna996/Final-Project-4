@@ -7,46 +7,116 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
+
+import ajbc.doodle.calendar.controllers.PushController;
+import ajbc.doodle.calendar.daos.DaoException;
+import ajbc.doodle.calendar.services.NotificationService;
+import ajbc.doodle.calendar.services.UserService;
 
 @Component
 public class NotificationManager {
 
 	private PriorityQueue<Notification> priorityQueue;
 
+	private long secondsToSleep;
+	private ScheduledExecutorService scheduledExecutorService;
+
+	@Autowired
+	private NotificationService notificationService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private PushController pushController;
+
 	public NotificationManager() {
-		System.out.println("NotificationManager was created");
-
 		priorityQueue = new PriorityQueue<Notification>();
+		scheduledExecutorService = Executors.newScheduledThreadPool(1);
+	}
 
-//		this.run();
+	@EventListener
+	public void start(ContextRefreshedEvent event) {
+		fetchNotificationFromDB();
+		secondsToSleep = getSecondsToSleepUntilNextNotification();
+		updateWakingTime(secondsToSleep);
+	}
+
+	// TODO change to not deleted notifications
+	private void fetchNotificationFromDB() {
+
+		try {
+			List<Notification> notifications = notificationService.getAllNotifications();
+			priorityQueue.addAll(notifications);
+		} catch (DaoException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
+	public void updateWakingTime(long secondsToSleep) {
+		if (secondsToSleep == -1l) {
+			return;
+		}
+
+		// TODO check if there is a need to update secondsToSleep
+
+//		scheduledExecutorService.shutdownNow();
+		scheduledExecutorService.schedule(() -> this.run(), 5, TimeUnit.SECONDS);
 	}
 
 	public void run() {
-		System.out.println("NotificationManager is running...");
-		
+
+		if (priorityQueue.isEmpty()) {
+			return;
+		}
+
 		List<Notification> readyToRun = new ArrayList<Notification>();
 		LocalDateTime timeInAMinute = LocalDateTime.now().plusMinutes(1);
-		
-		while(priorityQueue.peek().getLocalDateTime().isBefore(timeInAMinute)) {
-			readyToRun.add(priorityQueue.remove());
-		}
-		
+
+//		while (!priorityQueue.isEmpty() && priorityQueue.peek().getLocalDateTime().isBefore(timeInAMinute)) {
+//			readyToRun.add(priorityQueue.remove());
+//		}
+
+		readyToRun.add(priorityQueue.remove());
+
 		ExecutorService executorService = Executors.newFixedThreadPool(readyToRun.size());
-		
-		readyToRun.forEach(notification -> executorService.execute(new NotificationSender(notification)));
-		
+
+		readyToRun.forEach(notification -> executorService
+				.execute(new NotificationSender(notification, userService, pushController)));
+
 		// the next time to wake up
-		long secondsToSleep = LocalDateTime.now().until(priorityQueue.peek().getLocalDateTime(),ChronoUnit.SECONDS);
+		updateWakingTime(getSecondsToSleepUntilNextNotification());
 	}
 
-	public void stop() {
+//	@Override
+//	public void run() {
+//
+////		NotificationSender sender = new NotificationSender(priorityQueue.remove(),userService, pushController );
+//		ExecutorService executorService = Executors.newFixedThreadPool(1);
+//		executorService.execute(new NotificationSender(priorityQueue.remove(),userService, pushController));
+//		
+////		sender.run();
+//	}
 
+	public long getSecondsToSleepUntilNextNotification() {
+		if (priorityQueue.isEmpty()) {
+			return -1;
+		}
+
+		return LocalDateTime.now().until(priorityQueue.peek().getLocalDateTime(), ChronoUnit.SECONDS);
 	}
 
 	public void addNotification(Notification notification) {
-		priorityQueue.add(notification);
 	}
 
 	public void addNotifications(List<Notification> notifications) {

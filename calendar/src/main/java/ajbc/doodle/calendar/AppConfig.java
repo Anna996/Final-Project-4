@@ -18,11 +18,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import ajbc.doodle.calendar.entities.Event;
 import ajbc.doodle.calendar.entities.Notification;
+import ajbc.doodle.calendar.entities.NotificationManager;
 import ajbc.doodle.calendar.entities.SubscriptionData;
 import ajbc.doodle.calendar.entities.User;
-
-
-
 
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
@@ -45,7 +43,6 @@ public class AppConfig {
 	private String serverName;
 	@Value("${driver_class_name}")
 	private String driverClassName;
-	
 
 	@Bean
 	public DataSource dataSource() {
@@ -54,40 +51,35 @@ public class AppConfig {
 		dataSource.setUsername(user);
 		dataSource.setPassword(password);
 		dataSource.setDriverClassName(driverClassName);
-		
+
 		return dataSource;
 	}
-	
-	
+
 	@Bean
-	public LocalSessionFactoryBean sessionFactory(DataSource  dataSource) {
+	public LocalSessionFactoryBean sessionFactory(DataSource dataSource) {
 		LocalSessionFactoryBean factory = new LocalSessionFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setAnnotatedClasses(Notification.class, User.class, Event.class, SubscriptionData.class);
-		
+
 		Properties props = new Properties();
 		props.setProperty("hibernate.dialect", "org.hibernate.dialect.SQLServerDialect");
 		props.setProperty("hibernate.show_sql", "false");
 		props.setProperty("hibernate.format_sql", "true");
-		
+
 		factory.setHibernateProperties(props);
 		return factory;
 	}
-	
-	
-	
+
 	@Bean
 	public HibernateTemplate hibernateTemplate(SessionFactory sessionFactory) {
 		return new HibernateTemplate(sessionFactory);
 	}
-	
-	
+
 	@Bean
 	public HibernateTransactionManager txMgr(SessionFactory sessionFactory) {
 		return new HibernateTransactionManager(sessionFactory);
 	}
-	
-	
+
 	private String createUrl() {
 		return "jdbc:sqlserver://" + serverAddress + ":" + port + ";databaseName=" + databaseName + ";servername="
 				+ serverName + ";" + ";encrypt=false";

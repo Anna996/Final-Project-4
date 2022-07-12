@@ -34,7 +34,7 @@ public class NotificationService {
 	 * GET operations
 	 * 
 	 */
-
+	
 	public List<Notification> getAllNotifications() throws DaoException {
 		return notificationDao.getAllNotifications();
 	}
