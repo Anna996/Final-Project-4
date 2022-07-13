@@ -16,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.daos.EventDao;
+import ajbc.doodle.calendar.daos.NotificationDao;
 import ajbc.doodle.calendar.daos.SubscriptionDataDao;
 import ajbc.doodle.calendar.daos.UserDao;
 import ajbc.doodle.calendar.entities.Event;
+import ajbc.doodle.calendar.entities.Notification;
 import ajbc.doodle.calendar.entities.SubscriptionData;
 import ajbc.doodle.calendar.entities.User;
 
@@ -33,6 +35,10 @@ public class UserService {
 	@Qualifier("HTEventDao")
 	private EventDao eventDao;
 
+	@Autowired
+	@Qualifier("HTNotificationDao")
+	private NotificationDao notificationDao;
+	
 	@Autowired
 	private SubscriptionDataService dataService;
 
@@ -194,6 +200,12 @@ public class UserService {
 		User user = getUserById(id);
 		user.setActive(false);
 		user.setLoggedIn(false);
+		user.getEvents().forEach(event -> event.getUsers().remove(user));
+		
+		for(Notification notification : user.getNotifications()) {
+			notificationDao.softDeleteNotification(notification);
+		}
+		
 		userDao.softDeleteUser(user);
 	}
 

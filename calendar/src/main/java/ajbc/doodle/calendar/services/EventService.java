@@ -223,8 +223,13 @@ public class EventService {
 	 * 
 	 */
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void softDeleteEvent(int id) throws DaoException {
 		Event event = getEventById(id);
+		event.setUsers(null);
+		for(Notification notification : event.getNotifications()) {
+			notificationDao.softDeleteNotification(notification);
+		}
 		eventDao.softDeleteEvent(event);
 	}
 
