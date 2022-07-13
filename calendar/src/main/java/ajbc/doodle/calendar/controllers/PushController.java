@@ -3,7 +3,6 @@ package ajbc.doodle.calendar.controllers;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +19,13 @@ import ajbc.doodle.calendar.entities.webpush.SubscriptionEndpoint;
 import ajbc.doodle.calendar.services.CryptoService;
 import ajbc.doodle.calendar.services.UserService;
 
+/**
+ * Restful api service that enables users to subscribe to the calendar push notification
+ * service, and receive their notifications to their browser.
+ * 
+ * @author Anna Aba
+ *
+ */
 @RestController
 public class PushController {
 
@@ -30,20 +36,38 @@ public class PushController {
 
 	private final Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
 
-	public PushController(ServerKeys serverKeys, CryptoService cryptoService, ObjectMapper objectMapper) {
+	/**
+	 * Constructor - gets pair of keys.
+	 * @param serverKeys - Voluntary Application Server Identification keys.
+	 */
+	public PushController(ServerKeys serverKeys) {
 		this.serverKeys = serverKeys;
 	}
 
+	/**
+	 * Get request that returns the public key of the server.
+	 * @return array of bytes which represents the public key.
+	 */
 	@GetMapping(path = "/publicSigningKey", produces = "application/octet-stream")
 	public byte[] publicSigningKey() {
 		return this.serverKeys.getPublicKeyUncompressed();
 	}
 
+	/**
+	 *  Get request that returns the Base64 public key of the server.
+	 * @return the public key as a Base64-encoded string.
+	 */
 	@GetMapping(path = "/publicSigningKeyBase64")
 	public String publicSigningKeyBase64() {
 		return this.serverKeys.getPublicKeyBase64();
 	}
 
+	/**
+	 * Subscribe user and his browser to the push notification service.
+	 * @param subscription object that holds the user's subscription data.
+	 * @param email the email of the user.
+	 * @return true if logged in successfully.
+	 */
 	@PostMapping("/subscribe/{email}")
 	public boolean subscribe(@RequestBody Subscription subscription, @PathVariable(required = false) String email) {
 		try {
@@ -58,6 +82,11 @@ public class PushController {
 		}
 	}
 
+	/**
+	 * Unsubscribe user and his browser from the push notification service.
+	 * @param subscription object that holds the user's subscription data.
+	 * @param email the email of the user.
+	 */
 	@PostMapping("/unsubscribe/{email}")
 	public void unsubscribe(@RequestBody SubscriptionEndpoint subscription,
 			@PathVariable(required = false) String email) {
@@ -70,6 +99,11 @@ public class PushController {
 		}
 	}
 
+	/**
+	 * Returns true if browser is subscribed to the push notification service.
+	 * @param subscription object that holds the user's subscription data.
+	 * @return true if the browser is already subscribed.
+	 */
 	@PostMapping("/isSubscribed")
 	public boolean isSubscribed(@RequestBody SubscriptionEndpoint subscription) {
 		return this.subscriptions.containsKey(subscription.getEndpoint());

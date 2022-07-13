@@ -23,6 +23,12 @@ import ajbc.doodle.calendar.entities.User;
 import ajbc.doodle.calendar.services.SubscriptionDataService;
 import ajbc.doodle.calendar.services.UserService;
 
+/**
+ * Restful api service that receives http requests about Users of the calendar.
+ * 
+ * @author Anna Aba
+ *
+ */
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -30,14 +36,20 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private SubscriptionDataService dataService;
-
 	/**
 	 * GET operations
 	 * 
 	 */
 
+	/**
+	 * Returns all users (not active also) from the database. 
+	 * Two optional params - start and end date-time of event. 
+	 * If both parameters exist - then the function returns all users with event in this range.
+	 * 
+	 * @param start date-time of event.
+	 * @param end   date-time of event.
+	 * @return ResponseEntity with list of users.
+	 */
 	@GetMapping
 	public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String start,
 			@RequestParam(required = false) String end) {
@@ -58,6 +70,12 @@ public class UserController {
 		}
 	}
 
+	/**
+	 * Gets an unique id or email, and returns the user with it.
+	 * 
+	 * @param idOrEmail String that represents an id of user or an email.
+	 * @return ResponseEntity with the user.
+	 */
 	@GetMapping("/{idOrEmail}")
 	public ResponseEntity<?> getUserByIdOrEmail(@PathVariable String idOrEmail) {
 
@@ -92,7 +110,12 @@ public class UserController {
 		}
 	}
 
-	// Get all users of an event by event id
+	/**
+	 * Returns all the users that have this event.
+	 * 
+	 * @param eventId the id of the event.
+	 * @return ResponseEntity with list of users.
+	 */
 	@GetMapping("/event/{id}")
 	public ResponseEntity<?> getUsersByEventId(@PathVariable("id") int eventId) {
 		try {
@@ -109,22 +132,16 @@ public class UserController {
 		return "user id: " + id;
 	}
 
-	@GetMapping("/data")
-	public ResponseEntity<?> getData() {
-		try {
-			List<SubscriptionData> subscriptions = dataService.getAllSubscriptions();
-			return ResponseEntity.ok(subscriptions);
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to fetch subscriptions data");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-		}
-	}
-
 	/**
 	 * POST operations
 	 * 
 	 */
 
+	/**
+	 * Adds list of new users with unique email to the database.
+	 * @param users list of new users.
+	 * @return ResponseEntity with the list of new users.
+	 */
 	@PostMapping
 	public ResponseEntity<?> addUsers(@RequestBody List<User> users) {
 
@@ -148,6 +165,11 @@ public class UserController {
 	 * 
 	 */
 
+	/**
+	 * Updates list of existed users in the database.
+	 * @param users list of users to update.
+	 * @return ResponseEntity with the list of updated users.
+	 */
 	@PutMapping
 	public ResponseEntity<?> updateUsers(@RequestBody List<User> users) {
 
@@ -170,6 +192,11 @@ public class UserController {
 	 * 
 	 */
 
+	/**
+	 * Deletes user by switching the isActive flag to false.
+	 * @param id the id of the user to delete.
+	 * @return ResponseEntity with the deleted user.
+	 */
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> softDeleteUser(@PathVariable int id) {
 		try {
@@ -183,6 +210,11 @@ public class UserController {
 		}
 	}
 
+	/**
+	 * Deletes the user completely from the database, and his notifications also.
+	 * @param id the id of the user to delete.
+	 * @return ResponseEntity with the deleted user.
+	 */
 	@DeleteMapping("{id}/delete")
 	public ResponseEntity<?> hardDeleteUser(@PathVariable int id) {
 		try {

@@ -22,6 +22,11 @@ import ajbc.doodle.calendar.entities.Notification;
 import ajbc.doodle.calendar.entities.NotificationManager;
 import ajbc.doodle.calendar.services.NotificationService;
 
+/**
+ * Restful api service that receives http requests about existed Notifications in the calendar.
+ * @author Anna Aba
+ *
+ */
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
@@ -37,6 +42,10 @@ public class NotificationController {
 	 * 
 	 */
 
+	/**
+	 * Returns all notifications (not active also) from the database. 
+	 * @return ResponseEntity with list of all notifications.
+	 */
 	@GetMapping
 	public ResponseEntity<?> getAllNotifications() {
 
@@ -49,6 +58,11 @@ public class NotificationController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
+	/**
+	 * Returns the notification with this id.
+	 * @param id the id of the notification.
+	 * @return ResponseEntity with the notification.
+	 */
 
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getNotificationById(@PathVariable int id) {
@@ -63,6 +77,11 @@ public class NotificationController {
 		}
 	}
 
+	/**
+	 * Returns all notifications of an event.
+	 * @param eventId the id of the event.
+	 * @return ResponseEntity with list of the notifications.
+	 */
 	@GetMapping("/event/{id}")
 	public ResponseEntity<?> getNotificationsByEventId(@PathVariable("id") int eventId) {
 
@@ -81,6 +100,11 @@ public class NotificationController {
 	 * 
 	 */
 
+	/**
+	 * Adds list of new notifications of an user and of event to the database.
+	 * @param notifications list of new notifications.
+	 * @return ResponseEntity with the list of new notifications.
+	 */
 	@PostMapping
 	public ResponseEntity<?> addNotifications(@RequestBody List<Notification> notifications) {
 
@@ -107,6 +131,11 @@ public class NotificationController {
 	 * 
 	 */
 
+	/**
+	 * Updates list of existed notifications.
+	 * @param notifications list of notifications to update.
+	 * @return ResponseEntity with the list of updated notifications.
+	 */
 	@PutMapping
 	public ResponseEntity<?> updateNotifications(@RequestBody List<Notification> notifications) {
 
@@ -133,6 +162,11 @@ public class NotificationController {
 	 * 
 	 */
 
+	/**
+	 * Deletes notifications by switching their isActive flag to false.
+	 * @param notificationIds list of ids of the notifications to delete.
+	 * @return ResponseEntity with list of deleted notifications.
+	 */
 	@DeleteMapping
 	public ResponseEntity<?> softDeleteNotifications(@RequestBody List<Integer> notificationIds) {
 
@@ -154,6 +188,11 @@ public class NotificationController {
 		}
 	}
 
+	/**
+	 * Deletes notifications completely from the database.
+	 * @param notificationIds list of ids of the notifications to delete.
+	 * @return ResponseEntity with list of deleted notifications.
+	 */
 	@DeleteMapping("/delete")
 	public ResponseEntity<?> hardDeleteNotifications(@RequestBody List<Integer> notificationIds) {
 

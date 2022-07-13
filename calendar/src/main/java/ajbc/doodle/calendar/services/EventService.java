@@ -163,8 +163,6 @@ public class EventService {
 		for (Event event : events) {
 			updateEvent(event, userId);
 		}
-
-//		eventDao.updateEvents(eventsToUpdate);
 	}
 
 	private Event checkEventToUpdate(Event event, int userId) throws DaoException {

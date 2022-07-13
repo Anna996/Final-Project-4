@@ -23,6 +23,11 @@ import ajbc.doodle.calendar.entities.User;
 import ajbc.doodle.calendar.services.EventService;
 import ajbc.doodle.calendar.services.UserService;
 
+/**
+ * Restful api service that receives http requests about the Events in the calendar.
+ * @author Anna Aba
+ *
+ */
 @RestController
 @RequestMapping("/events")
 public class EventController {
@@ -38,6 +43,15 @@ public class EventController {
 	 * 
 	 */
 
+	/**
+	 * Returns all events (not active also) from the database. 
+	 * Two optional params - start and end date-time of event. 
+	 * If both parameters exist - then the function returns all events in this range.
+	 * 
+	 * @param start date-time of event.
+	 * @param end date-time of event.
+	 * @return ResponseEntity with list of events.
+	 */
 	@GetMapping
 	public ResponseEntity<?> getAllEvents(@RequestParam(required = false) String start,
 			@RequestParam(required = false) String end) {
@@ -58,6 +72,16 @@ public class EventController {
 		}
 	}
 
+	/**
+	 * Returns all events of an user.
+	 * Two optional params - start and end date-time of event. 
+	 * If both parameters exist - then the function returns all events of an user that in this range.
+	 * 
+	 * @param userId the id of the user.
+	 * @param start date-time of event.
+	 * @param end date-time of event.
+	 * @return ResponseEntity with list of events of user.
+	 */
 	@GetMapping("/user/{id}")
 	public ResponseEntity<?> getEventsByUserId(@PathVariable("id") int userId,
 			@RequestParam(required = false) String start, @RequestParam(required = false) String end) {
@@ -79,6 +103,15 @@ public class EventController {
 		}
 	}
 
+	/**
+	 * Returns all future events of an user.
+	 * Two optional params - minutes and hours.
+	 * If both parameters exist - then the function returns all future events of an user that coming the next number of minutes and hours.
+	 * @param userId the id of the user.
+	 * @param minutes the next number of minutes.
+	 * @param hours the next number of hours.
+	 * @return ResponseEntity with list of future events.
+	 */
 	@GetMapping("/user/{id}/future")
 	public ResponseEntity<?> getFutureEventsByUserId(@PathVariable("id") int userId,
 			@RequestParam(required = false) Integer minutes, @RequestParam(required = false) Integer hours) {
@@ -104,6 +137,12 @@ public class EventController {
 	 * 
 	 */
 
+	/**
+	 * Adds list of new events of an user to the database. For each event, adds default notification.
+	 * @param events list of new events.
+	 * @param userId the id of the user.
+	 * @return ResponseEntity with the list of new events and their default notifications.
+	 */
 	@PostMapping
 	public ResponseEntity<?> addEvents(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
 
@@ -129,6 +168,12 @@ public class EventController {
 	 * 
 	 */
 
+	/**
+	 * Updates list of existed events of an user in the database.
+	 * @param events list of events to update.
+	 * @param userId the id of the user.
+	 * @return ResponseEntity with the list of updated events.
+	 */
 	@PutMapping
 	public ResponseEntity<?> updateEvents(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
 
@@ -147,6 +192,13 @@ public class EventController {
 		}
 	}
 
+	/**
+	 * Adds the event to each guest-user from the guests list. Also for each guest, adds a default notification for this event.
+	 * @param eventId the id of the event.
+	 * @param userId the id of the user who is the owner of this event.
+	 * @param guestIds list of ids of the guests.
+	 * @return ResponseEntity with list of the guests with their updated event-list.
+	 */
 	@PutMapping("/{id}/guests")
 	public ResponseEntity<?> addGuestsToEvent(@PathVariable("id") int eventId,
 			@RequestParam(required = true) int userId, @RequestBody List<Integer> guestIds) {
@@ -168,6 +220,11 @@ public class EventController {
 	 * 
 	 */
 
+	/**
+	 * Deletes events by switching their isActive flag to false.
+	 * @param eventIds list of ids of the events to delete.
+	 * @return ResponseEntity with list of deleted events.
+	 */
 	@DeleteMapping
 	public ResponseEntity<?> softDeleteEvents(@RequestBody List<Integer> eventIds) {
 
@@ -187,6 +244,11 @@ public class EventController {
 		}
 	}
 
+	/**
+	 * Deletes events completely from the database, and theirs notifications also.
+	 * @param eventIds list of ids of the events to delete.
+	 * @return ResponseEntity with list of deleted events.
+	 */
 	@DeleteMapping("/delete")
 	public ResponseEntity<?> hardDeleteEvents(@RequestBody List<Integer> eventIds) {
 
