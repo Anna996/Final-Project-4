@@ -46,11 +46,11 @@ public class User {
 	private Set<Event> events = new HashSet<Event>();
 
 	@JsonIgnore
-	@OneToMany(mappedBy = "user" , fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+	@OneToMany(mappedBy = "user" , fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REMOVE})
 	private Set<Notification> notifications = new HashSet<>();
 	
 	@JsonIgnore
-	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REMOVE})
 	private Set<SubscriptionData> subscriptions = new HashSet<>();
 	
 	public void addEvent(Event event) {
@@ -63,5 +63,6 @@ public class User {
 		this.email = user.email;
 		this.birthdate = user.birthdate;
 		this.isLoggedIn = user.isLoggedIn;
+		this.isActive = user.isActive;
 	}
 }

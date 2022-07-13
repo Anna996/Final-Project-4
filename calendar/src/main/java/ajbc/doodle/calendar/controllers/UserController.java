@@ -227,8 +227,8 @@ public class UserController {
 	@DeleteMapping("{id}/delete")
 	public ResponseEntity<?> hardDeleteUser(@PathVariable int id){
 		try {
+			userService.hardDeleteUser(id);
 			User user = userService.getUserById(id);
-			userService.hardDeleteUser(user);
 			return ResponseEntity.ok(user);
 			
 		} catch (DaoException e) {

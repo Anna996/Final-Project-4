@@ -242,8 +242,8 @@ public class NotificationController {
 	public ResponseEntity<?> hardDeleteOneNotification(int id) {
 
 		try {
-			notificationService.hardDeleteNotification(id);
 			Notification fromDB = notificationService.getNotificationById(id);
+			notificationService.hardDeleteNotification(id);
 			return ResponseEntity.ok(fromDB);
 
 		} catch (DaoException e) {
@@ -255,8 +255,8 @@ public class NotificationController {
 	public ResponseEntity<?> hardDeleteNotifications(List<Integer> eventIds) {
 
 		try {
-			notificationService.hardDeleteNotifications(eventIds);
 			List<Notification> notifications = notificationService.getNotificationsByIds(eventIds);
+			notificationService.hardDeleteNotifications(eventIds);
 			return ResponseEntity.ok(notifications);
 
 		} catch (DaoException e) {

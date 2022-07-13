@@ -52,7 +52,7 @@ public class Notification implements Comparable<Notification> {
 	private Event event;
 
 	@JsonIgnore
-	@ManyToOne(cascade = CascadeType.MERGE)
+	@ManyToOne
 	@JoinColumn(name = "UserID")
 	private User user;
 

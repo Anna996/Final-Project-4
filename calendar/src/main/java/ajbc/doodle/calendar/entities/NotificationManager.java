@@ -115,7 +115,7 @@ public class NotificationManager {
 	}
 
 	public void updateNotification(Notification notification) {
-		if(priorityQueue.remove(notification)) {
+		if(priorityQueue.remove(notification) || notification.getLocalDateTime().isAfter(LocalDateTime.now())) {
 			addNotification(notification);
 		}
 	}

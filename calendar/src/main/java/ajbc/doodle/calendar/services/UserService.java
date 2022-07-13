@@ -197,18 +197,14 @@ public class UserService {
 		userDao.softDeleteUser(user);
 	}
 
-	public void hardDeleteUser(User user) throws DaoException {
-//		eventDao.deleteEvents(user.getEvents().stream().collect(Collectors.toList()));
-
-//		for (SubscriptionData subscription : user.getSubscriptions()) {
-//			deleteSubscription(subscription.getEndPoint());
-//		}
-
-		user.setEvents(null);
-//		user.setNotifications(null);
+	public void hardDeleteUser(int id) throws DaoException {
+		User user = getUserById(id);
+		user.getEvents().forEach(event -> event.getUsers().remove(user));
 		userDao.updateUser(user);
-		user = userDao.getUserById(user.getId());
-		userDao.hardDeleteUser(user);
+		user.setEvents(null);
+		user.setNotifications(null);
+		userDao.updateUser(user);
+		userDao.hardDeleteUser(userDao.getUserById(id));
 	}
 
 	private void deleteSubscription(String endPoint) throws DaoException {

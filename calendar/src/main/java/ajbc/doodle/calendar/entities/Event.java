@@ -60,7 +60,7 @@ public class Event {
 	@JoinTable(name = "UserEvent", joinColumns = @JoinColumn(name = "EventID"), inverseJoinColumns = @JoinColumn(name = "UserID"))
 	private Set<User> users = new HashSet<>();
 
-	@OneToMany(mappedBy = "event", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+	@OneToMany(mappedBy = "event", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.REMOVE })
 	private Set<Notification> notifications = new HashSet<>();
 
 	public void addUser(User user) {
@@ -84,6 +84,7 @@ public class Event {
 		this.start = event.start;
 		this.end = event.end;
 		this.repeat = event.repeat;
+		this.isActive = event.isActive;
 	}
 
 	public static LocalDateTime parseToLocalDateTime(String dateTime) {

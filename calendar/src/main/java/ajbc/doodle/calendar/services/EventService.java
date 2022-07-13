@@ -214,7 +214,9 @@ public class EventService {
 
 	public void hardDeleteEvent(int id) throws DaoException {
 		Event event = getEventById(id);
-		eventDao.hardDeleteEvent(event);
+		event.setUsers(null);
+		eventDao.updateEvent(event);
+		eventDao.hardDeleteEvent(eventDao.getEventById(id));
 	}
 
 	@Transactional(readOnly = false, rollbackFor = DaoException.class)
