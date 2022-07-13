@@ -73,6 +73,15 @@ public class NotificationService {
 
 	public void addNotification(Notification notification) throws DaoException {
 		notification = checkNotification(notification);
+		
+		// check if this user has less then 10 notifications for this event
+		Long existNotifications = notificationDao.getNumNotificationsForUserEvent(notification.getEventId(),
+				notification.getUserId());
+		if (existNotifications == MAX_NOTIFICATIONS_PER_EVENT) {
+			throw new DaoException("you already have " + MAX_NOTIFICATIONS_PER_EVENT
+					+ " notifications - this is the maximum per event");
+		}
+		
 		notification.setActive(true);
 		notificationDao.addNotification(notification);
 	}
@@ -93,13 +102,6 @@ public class NotificationService {
 		// check if -event and user- exist in UserEvent Table
 		// if not -> throw exception
 		eventDao.getSpecificEventOfUser(userId, eventId);
-
-		// check if this user has less then 10 notifications for this event
-		Long existNotifications = notificationDao.getNumNotificationsForUserEvent(eventId, userId);
-		if (existNotifications == MAX_NOTIFICATIONS_PER_EVENT) {
-			throw new DaoException("you already have " + MAX_NOTIFICATIONS_PER_EVENT
-					+ " notifications - this is the maximum per event");
-		}
 
 		notification.setEvent(event);
 		notification.setUser(user);

@@ -82,39 +82,16 @@ public class NotificationController {
 	 */
 
 	@PostMapping
-	public ResponseEntity<?> addNotification(@RequestBody List<Notification> notifications) {
+	public ResponseEntity<?> addNotifications(@RequestBody List<Notification> notifications) {
 
 		if (notifications == null || notifications.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notification info",
-					"failed to create notification");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notifications info",
+					"failed to create notifications");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (notifications.size() == 1) {
-			return addOneNotification(notifications.get(0));
-		}
-
-		return addListNotifications(notifications);
-	}
-
-	public ResponseEntity<?> addOneNotification(Notification notification) {
-		try {
-			notificationService.addNotification(notification);
-			Notification fromDB = notificationService.getNotificationById(notification.getId());
-			manager.addNotification(fromDB);
-			return ResponseEntity.status(HttpStatus.CREATED).body(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to create this notification");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> addListNotifications(@RequestBody List<Notification> notifications) {
 		try {
 			notificationService.addNotifications(notifications);
-			notifications = notificationService.getNotificationsByIds(
-					notifications.stream().map(notification -> notification.getId()).collect(Collectors.toList()));
 			manager.addNotifications(notifications);
 			return ResponseEntity.status(HttpStatus.CREATED).body(notifications);
 
@@ -131,40 +108,16 @@ public class NotificationController {
 	 */
 
 	@PutMapping
-	public ResponseEntity<?> updateNotification(@RequestBody List<Notification> notifications) {
+	public ResponseEntity<?> updateNotifications(@RequestBody List<Notification> notifications) {
 
 		if (notifications == null || notifications.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notification info",
-					"failed to update notification");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notifications info",
+					"failed to update notifications");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (notifications.size() == 1) {
-			return updateOneNotification(notifications.get(0));
-		}
-
-		return updateListNotifications(notifications);
-	}
-
-	public ResponseEntity<?> updateOneNotification(Notification notification) {
-
-		try {
-			notificationService.updateNotification(notification);
-			Notification fromDB = notificationService.getNotificationById(notification.getId());
-			manager.updateNotification(fromDB);
-			return ResponseEntity.status(HttpStatus.OK).body(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to update this notification");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> updateListNotifications(@RequestBody List<Notification> notifications) {
 		try {
 			notificationService.updateNotifications(notifications);
-			notifications = notificationService.getNotificationsByIds(
-					notifications.stream().map(notification -> notification.getId()).collect(Collectors.toList()));
 			manager.updateNotifications(notifications);
 			return ResponseEntity.status(HttpStatus.OK).body(notifications);
 
@@ -181,39 +134,17 @@ public class NotificationController {
 	 */
 
 	@DeleteMapping
-	public ResponseEntity<?> softDeleteNotification(@RequestBody List<Integer> notificationIds) {
+	public ResponseEntity<?> softDeleteNotifications(@RequestBody List<Integer> notificationIds) {
 
 		if (notificationIds == null || notificationIds.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notification info",
-					"failed to delete notification");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notifications info",
+					"failed to delete notifications");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (notificationIds.size() == 1) {
-			return softDeleteOneNotification(notificationIds.get(0));
-		}
-
-		return softDeleteNotifications(notificationIds);
-	}
-
-	public ResponseEntity<?> softDeleteOneNotification(int id) {
-
 		try {
-			notificationService.softDeleteNotification(id);
-			Notification fromDB = notificationService.getNotificationById(id);
-			return ResponseEntity.ok(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete this notification");
-			return ResponseEntity.status(500).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> softDeleteNotifications(List<Integer> eventIds) {
-
-		try {
-			notificationService.softDeleteNotifications(eventIds);
-			List<Notification> notifications = notificationService.getNotificationsByIds(eventIds);
+			notificationService.softDeleteNotifications(notificationIds);
+			List<Notification> notifications = notificationService.getNotificationsByIds(notificationIds);
 			return ResponseEntity.ok(notifications);
 
 		} catch (DaoException e) {
@@ -224,39 +155,17 @@ public class NotificationController {
 	}
 
 	@DeleteMapping("/delete")
-	public ResponseEntity<?> hardDeleteNotification(@RequestBody List<Integer> notificationIds) {
+	public ResponseEntity<?> hardDeleteNotifications(@RequestBody List<Integer> notificationIds) {
 
 		if (notificationIds == null || notificationIds.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notification info",
-					"failed to delete notification");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get notifications info",
+					"failed to delete notifications");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (notificationIds.size() == 1) {
-			return hardDeleteOneNotification(notificationIds.get(0));
-		}
-
-		return hardDeleteNotifications(notificationIds);
-	}
-
-	public ResponseEntity<?> hardDeleteOneNotification(int id) {
-
 		try {
-			Notification fromDB = notificationService.getNotificationById(id);
-			notificationService.hardDeleteNotification(id);
-			return ResponseEntity.ok(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete this notification");
-			return ResponseEntity.status(500).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> hardDeleteNotifications(List<Integer> eventIds) {
-
-		try {
-			List<Notification> notifications = notificationService.getNotificationsByIds(eventIds);
-			notificationService.hardDeleteNotifications(eventIds);
+			List<Notification> notifications = notificationService.getNotificationsByIds(notificationIds);
+			notificationService.hardDeleteNotifications(notificationIds);
 			return ResponseEntity.ok(notifications);
 
 		} catch (DaoException e) {

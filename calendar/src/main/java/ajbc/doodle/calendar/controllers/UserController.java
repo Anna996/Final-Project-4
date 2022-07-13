@@ -29,17 +29,18 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private SubscriptionDataService dataService;
 
 	/**
 	 * GET operations
 	 * 
-	 */	
+	 */
 
 	@GetMapping
-	public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String start, @RequestParam(required = false) String end) {
+	public ResponseEntity<?> getAllUsers(@RequestParam(required = false) String start,
+			@RequestParam(required = false) String end) {
 		List<User> users;
 
 		try {
@@ -48,7 +49,7 @@ public class UserController {
 			} else {
 				users = userService.getAllUsers();
 			}
-			
+
 			return ResponseEntity.ok(userService.filterByUserNotifications(users));
 
 		} catch (DaoException e) {
@@ -108,18 +109,17 @@ public class UserController {
 		return "user id: " + id;
 	}
 
-	
 	@GetMapping("/data")
-	public ResponseEntity<?> getData(){
+	public ResponseEntity<?> getData() {
 		try {
-			List<SubscriptionData> subscriptions =  dataService.getAllSubscriptions();
+			List<SubscriptionData> subscriptions = dataService.getAllSubscriptions();
 			return ResponseEntity.ok(subscriptions);
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to fetch subscriptions data");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
-	
+
 	/**
 	 * POST operations
 	 * 
@@ -129,33 +129,12 @@ public class UserController {
 	public ResponseEntity<?> addUsers(@RequestBody List<User> users) {
 
 		if (users == null || users.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get user info", "failed to create user");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get users info", "failed to create users");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (users.size() == 1) {
-			return addOneUser(users.get(0));
-		}
-
-		return addListUsers(users);
-	}
-
-	private ResponseEntity<?> addOneUser(User user) {
-		try {
-			userService.addUser(user);
-			User fromDB = userService.getUserById(user.getId());
-			return ResponseEntity.status(HttpStatus.CREATED).body(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to create this user");
-			return ResponseEntity.status(500).body(eMessage);
-		}
-	}
-
-	private ResponseEntity<?> addListUsers(List<User> users) {
 		try {
 			userService.addUsers(users);
-			users = userService.getUsersByIds(users.stream().map(user -> user.getId()).collect(Collectors.toList()));
 			return ResponseEntity.status(HttpStatus.CREATED).body(users);
 
 		} catch (DaoException e) {
@@ -168,69 +147,49 @@ public class UserController {
 	 * PUT operations
 	 * 
 	 */
-	
+
 	@PutMapping
-	public ResponseEntity<?> updateUser(@RequestBody List<User> users){
+	public ResponseEntity<?> updateUsers(@RequestBody List<User> users) {
 
 		if (users == null || users.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get user info", "failed to update user");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get users info", "failed to update users");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (users.size() == 1) {
-			return updateOneUser(users.get(0));
-		}
-
-		return updateUserList(users);
-	}
-	
-	public ResponseEntity<?> updateOneUser( User user){
-		try {
-			userService.updateUser(user);
-			User fromDB = userService.getUserById(user.getId());
-			return ResponseEntity.ok(userService.filterByUserNotifications(fromDB));
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), getUserIdMessage(user.getId()));
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
-		}
-	}
-	
-	public ResponseEntity<?> updateUserList( List<User> users){
 		try {
 			userService.updateUsers(users);
-			users = userService.getUsersByIds(users.stream().map(user -> user.getId()).collect(Collectors.toList()));
 			return ResponseEntity.ok(userService.filterByUserNotifications(users));
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to update these users");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
-	
+
 	/**
 	 * DELETE operations
 	 * 
 	 */
-	
+
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> softDeleteUser( @PathVariable int id){
+	public ResponseEntity<?> softDeleteUser(@PathVariable int id) {
 		try {
 			userService.softDeleteUser(id);
 			User user = userService.getUserById(id);
-			return ResponseEntity.ok(user);
-			
+			return ResponseEntity.ok(userService.filterByUserNotifications(user));
+
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to delete this user");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);
 		}
 	}
-	
+
 	@DeleteMapping("{id}/delete")
-	public ResponseEntity<?> hardDeleteUser(@PathVariable int id){
+	public ResponseEntity<?> hardDeleteUser(@PathVariable int id) {
 		try {
-			userService.hardDeleteUser(id);
 			User user = userService.getUserById(id);
-			return ResponseEntity.ok(user);
-			
+			userService.hardDeleteUser(id);
+			return ResponseEntity.ok(userService.filterByUserNotifications(user));
+
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "Failed to hard delete this user");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(eMessage);

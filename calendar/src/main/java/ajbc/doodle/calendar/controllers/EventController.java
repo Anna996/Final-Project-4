@@ -105,39 +105,17 @@ public class EventController {
 	 */
 
 	@PostMapping
-	public ResponseEntity<?> addEvent(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
+	public ResponseEntity<?> addEvents(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
 
 		if (events == null || events.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to create event");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get events info", "failed to create events");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (events.size() == 1) {
-			return addOneEvent(events.get(0), userId);
-		}
-
-		return addEvents(events, userId);
-	}
-
-	public ResponseEntity<?> addOneEvent(Event event, int userId) {
-
-		try {
-			eventService.addEvent(event, userId);
-			Event fromDB = eventService.getEventById(event.getId());
-			return ResponseEntity.status(HttpStatus.CREATED).body(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to create this event");
-			return ResponseEntity.status(500).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> addEvents(List<Event> events, int userId) {
-
 		try {
 			eventService.addEvents(events, userId);
-			events = eventService
-					.getEventsByIds(events.stream().map(event -> event.getId()).collect(Collectors.toList()));
+			// fetch from DB in order to show his default notifications
+			events = eventService.getEventsByIds(events.stream().map(event -> event.getId()).collect(Collectors.toList()));
 			return ResponseEntity.status(HttpStatus.CREATED).body(events);
 
 		} catch (DaoException e) {
@@ -152,39 +130,15 @@ public class EventController {
 	 */
 
 	@PutMapping
-	public ResponseEntity<?> updateEvent(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
+	public ResponseEntity<?> updateEvents(@RequestBody List<Event> events, @RequestParam(required = true) int userId) {
 
 		if (events == null || events.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to update event");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get events info", "failed to update events");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
 
-		if (events.size() == 1) {
-			return updateOneEvent(events.get(0), userId);
-		}
-
-		return updateEvents(events, userId);
-	}
-
-	public ResponseEntity<?> updateOneEvent(Event event, int userId) {
-
-		try {
-			eventService.updateEvent(event, userId);
-			Event fromDB = eventService.getEventById(event.getId());
-			return ResponseEntity.ok(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to update this event");
-			return ResponseEntity.status(500).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> updateEvents(List<Event> events, int userId) {
-
 		try {
 			eventService.updateEvents(events, userId);
-			events = eventService
-					.getEventsByIds(events.stream().map(event -> event.getId()).collect(Collectors.toList()));
 			return ResponseEntity.ok(events);
 
 		} catch (DaoException e) {
@@ -201,6 +155,7 @@ public class EventController {
 			eventService.addGuestsToEvent(eventId, userId, guestIds);
 			List<User> guests = userService.getUsersByIds(guestIds);
 			return ResponseEntity.ok(userService.filterByUserNotifications(guests));
+
 		} catch (DaoException e) {
 			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(),
 					"failed to send this event to these guests");
@@ -214,34 +169,12 @@ public class EventController {
 	 */
 
 	@DeleteMapping
-	public ResponseEntity<?> softDeleteEvent(@RequestBody List<Integer> eventIds) {
+	public ResponseEntity<?> softDeleteEvents(@RequestBody List<Integer> eventIds) {
 
 		if (eventIds == null || eventIds.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to delete event");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get events info", "failed to delete events");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
-
-		if (eventIds.size() == 1) {
-			return softDeleteOneEvent(eventIds.get(0));
-		}
-
-		return softDeleteEvents(eventIds);
-	}
-
-	public ResponseEntity<?> softDeleteOneEvent(int id) {
-
-		try {
-			eventService.softDeleteEvent(id);
-			Event fromDB = eventService.getEventById(id);
-			return ResponseEntity.ok(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete this event");
-			return ResponseEntity.status(500).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> softDeleteEvents(List<Integer> eventIds) {
 
 		try {
 			eventService.softDeleteEvents(eventIds);
@@ -255,34 +188,12 @@ public class EventController {
 	}
 
 	@DeleteMapping("/delete")
-	public ResponseEntity<?> hardDeleteEvent(@RequestBody List<Integer> eventIds) {
+	public ResponseEntity<?> hardDeleteEvents(@RequestBody List<Integer> eventIds) {
 
 		if (eventIds == null || eventIds.size() == 0) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get event info", "failed to delete event");
+			ErrorMessage eMessage = ErrorMessage.getErrorMessage("didn't get events info", "failed to delete events");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(eMessage);
 		}
-
-		if (eventIds.size() == 1) {
-			return hardDeleteOneEvent(eventIds.get(0));
-		}
-
-		return hardDeleteEvents(eventIds);
-	}
-
-	public ResponseEntity<?> hardDeleteOneEvent(int id) {
-
-		try {
-			Event fromDB = eventService.getEventById(id);
-			eventService.hardDeleteEvent(id);
-			return ResponseEntity.ok(fromDB);
-
-		} catch (DaoException e) {
-			ErrorMessage eMessage = ErrorMessage.getErrorMessage(e.getMessage(), "failed to delete this event");
-			return ResponseEntity.status(500).body(eMessage);
-		}
-	}
-
-	public ResponseEntity<?> hardDeleteEvents(List<Integer> eventIds) {
 
 		try {
 			List<Event> events = eventService.getEventsByIds(eventIds);
