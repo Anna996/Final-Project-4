@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ajbc.doodle.calendar.controllers.PushController;
 import ajbc.doodle.calendar.daos.DaoException;
+import ajbc.doodle.calendar.services.NotificationSenderService;
 import ajbc.doodle.calendar.services.NotificationService;
 import ajbc.doodle.calendar.services.UserService;
 
@@ -37,7 +38,7 @@ public class NotificationManager {
 	private UserService userService;
 
 	@Autowired
-	private PushController pushController;
+	private NotificationSenderService notificationSenderService;
 
 	public NotificationManager() {
 		priorityQueue = new PriorityQueue<Notification>();
@@ -88,7 +89,7 @@ public class NotificationManager {
 		ExecutorService executorService = Executors.newFixedThreadPool(readyToRun.size());
 
 		readyToRun.forEach(notification -> executorService
-				.execute(new NotificationSender(notification, userService, notificationService, pushController)));
+				.execute(new NotificationSender(notification, userService, notificationService, notificationSenderService)));
 
 		if (priorityQueue.isEmpty()) {
 			this.nextDateTime = null;

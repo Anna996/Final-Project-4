@@ -6,12 +6,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ajbc.doodle.calendar.AppConfig;
 import ajbc.doodle.calendar.controllers.PushController;
 import ajbc.doodle.calendar.daos.DaoException;
 import ajbc.doodle.calendar.entities.webpush.Subscription;
 import ajbc.doodle.calendar.entities.webpush.SubscriptionKeys;
+import ajbc.doodle.calendar.services.NotificationSenderService;
 import ajbc.doodle.calendar.services.NotificationService;
 import ajbc.doodle.calendar.services.UserService;
 
@@ -20,17 +22,17 @@ public class NotificationSender implements Runnable {
 	private Notification notification;
 	private UserService userService;
 	private NotificationService notificationService;
-	private PushController pushController;
+	private NotificationSenderService notificationSenderService;
 
 	public NotificationSender(Notification notification, UserService userService,
-			NotificationService notificationService, PushController pushController) {
+			NotificationService notificationService,  NotificationSenderService notificationSenderService) {
 		this.notification = notification;
 		this.userService = userService;
-		this.pushController = pushController;
+		this.notificationSenderService = notificationSenderService;
 		this.notificationService = notificationService;
 	}
 
-	// Transaction
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	@Override
 	public void run() {
 		try {
@@ -42,10 +44,8 @@ public class NotificationSender implements Runnable {
 								new SubscriptionKeys(userData.getPublicKey(), userData.getAuth())))
 						.collect(Collectors.toMap(sub -> sub.getEndpoint(), sub -> sub));
 
-				pushController.sendNotificationToUser(subscriptions, notification.getNotificationForClient());
-
-				// to change
 				notificationService.setNotActive(notification);
+				notificationSenderService.sendNotificationToUser(subscriptions, notification.getNotificationForClient());
 			}
 
 		} catch (DaoException e) {
