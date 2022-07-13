@@ -3,9 +3,12 @@ package ajbc.doodle.calendar.services;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,19 +115,20 @@ public class EventService {
 	 * 
 	 */
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void addEvent(Event event, int userId) throws DaoException {
 
 		event = checkEventToAdd(event, userId);
 		eventDao.addEvent(event);
 
 		Event fromDB = getEventById(event.getId());
-		addDefaultNotification(fromDB);
+		addDefaultNotification(fromDB, userId);
 	}
 
 	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void addEvents(List<Event> events, int userId) throws DaoException {
 		for (Event event : events) {
-			addEvent(event,userId);
+			addEvent(event, userId);
 		}
 	}
 
@@ -137,8 +141,8 @@ public class EventService {
 		return event;
 	}
 
-	private void addDefaultNotification(Event event) throws DaoException {
-		User user = userDao.getUserById(event.getOwnerId());
+	private void addDefaultNotification(Event event, int userId) throws DaoException {
+		User user = userDao.getUserById(userId);
 		Notification notification = event.createDefaultNotification(user);
 		notificationDao.addNotification(notification);
 	}
@@ -148,6 +152,7 @@ public class EventService {
 	 * 
 	 */
 
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void updateEvent(Event event, int userId) throws DaoException {
 		event = checkEventToUpdate(event, userId);
 		eventDao.updateEvent(event);
@@ -158,7 +163,7 @@ public class EventService {
 		for (Event event : events) {
 			updateEvent(event, userId);
 		}
-		
+
 //		eventDao.updateEvents(eventsToUpdate);
 	}
 
@@ -169,11 +174,27 @@ public class EventService {
 			throw new DaoException("only the owner can update this event");
 		}
 
+		if (!fromDB.getStart().isEqual(event.getStart())) {
+			long secondsDiff = fromDB.getStart().until(event.getStart(), ChronoUnit.SECONDS);
+			updateNotificationsStartTime(event.getId(), secondsDiff);
+		}
+
 		fromDB.copyEvent(event);
-		
+
 		return fromDB;
 	}
 
+	private void updateNotificationsStartTime(int eventId, long seconds) throws DaoException {
+		List<Notification> notifications = notificationDao.getNotificationsByEventId(eventId);
+
+		for (Notification notification : notifications) {
+			LocalDateTime updatedTime = notification.getLocalDateTime().plusSeconds(seconds);
+			notification.setLocalDateTime(updatedTime);
+			notificationDao.updateNotification(notification);
+		}
+	}
+
+	@Transactional(readOnly = false, rollbackFor = DaoException.class)
 	public void addGuestsToEvent(int eventId, int userId, List<Integer> guestIds) throws DaoException {
 		userDao.assertUserExists(userId);
 		Event event = getEventById(eventId);
@@ -193,13 +214,17 @@ public class EventService {
 		}
 
 		eventDao.updateEvent(event);
+
+		for (Integer guestId : guestIds) {
+			addDefaultNotification(event, guestId);
+		}
 	}
 
 	/**
 	 * DELETE operations
 	 * 
 	 */
-	
+
 	public void softDeleteEvent(int id) throws DaoException {
 		Event event = getEventById(id);
 		eventDao.softDeleteEvent(event);

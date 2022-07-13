@@ -31,6 +31,8 @@ public class NotificationService {
 	@Qualifier("HTEventDao")
 	private EventDao eventDao;
 
+	private final int MAX_NOTIFICATIONS_PER_EVENT = 10;
+
 	/**
 	 * GET operations
 	 * 
@@ -91,6 +93,13 @@ public class NotificationService {
 		// check if -event and user- exist in UserEvent Table
 		// if not -> throw exception
 		eventDao.getSpecificEventOfUser(userId, eventId);
+
+		// check if this user has less then 10 notifications for this event
+		Long existNotifications = notificationDao.getNumNotificationsForUserEvent(eventId, userId);
+		if (existNotifications == MAX_NOTIFICATIONS_PER_EVENT) {
+			throw new DaoException("you already have " + MAX_NOTIFICATIONS_PER_EVENT
+					+ " notifications - this is the maximum per event");
+		}
 
 		notification.setEvent(event);
 		notification.setUser(user);

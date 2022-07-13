@@ -97,7 +97,7 @@ public class NotificationManager {
 		}
 	}
 
-	private long getSecondsToSleepUntil(LocalDateTime dateTime) {
+	protected long getSecondsToSleepUntil(LocalDateTime dateTime) {
 		long secondsToSleep = LocalDateTime.now().until(dateTime, ChronoUnit.SECONDS);
 		return secondsToSleep < 1 ? 0 : secondsToSleep;
 	}
@@ -122,5 +122,21 @@ public class NotificationManager {
 
 	public void updateNotifications(List<Notification> notifications) {
 		notifications.forEach(notification -> updateNotification(notification));
+	}
+
+	protected LocalDateTime getNextDateTime() {
+		return nextDateTime;
+	}
+
+	protected void setNextDateTime(LocalDateTime nextDateTime) {
+		this.nextDateTime = nextDateTime;
+	}
+
+	protected PriorityQueue<Notification> getPriorityQueue() {
+		return priorityQueue;
+	}
+
+	protected void setPriorityQueue(PriorityQueue<Notification> priorityQueue) {
+		this.priorityQueue = priorityQueue;
 	}
 }

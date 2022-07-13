@@ -24,6 +24,10 @@ public interface NotificationDao {
 
 	List<Notification> getNotificationsByEventId(int eventId) throws DaoException;
 
+	List<Notification> getNotificationsByUserEvent(int eventId, int userId) throws DaoException;
+	
+	Long getNumNotificationsForUserEvent(int eventId, int userId) throws DaoException;
+	
 	/**
 	 * POST operations
 	 * 

@@ -44,14 +44,10 @@ public class Event {
 	private String title;
 	private String description;
 	private String address;
-	private boolean isAllDay;
 	@Column(name = "StartEvent")
 	private LocalDateTime start;
 	@Column(name = "EndEvent")
 	private LocalDateTime end;
-	@Column(name = "RepeatEvent")
-	@Enumerated(EnumType.STRING)
-	private Repeat repeat;
 	private int ownerId;
 	private boolean isActive;
 
@@ -72,25 +68,23 @@ public class Event {
 	}
 
 	public Event getFullCopy(Event event) {
-		return new Event(event.id, event.title, event.description, event.address, event.isAllDay, event.start,
-				event.end, event.repeat, event.ownerId, event.isActive,null, event.notifications);
+		return new Event(event.id, event.title, event.description, event.address, event.start, event.end, event.ownerId,
+				event.isActive, null, event.notifications);
 	}
-	
+
 	public void copyEvent(Event event) {
 		this.title = event.title;
 		this.description = event.description;
 		this.address = event.address;
-		this.isAllDay = event.isAllDay;
 		this.start = event.start;
 		this.end = event.end;
-		this.repeat = event.repeat;
 		this.isActive = event.isActive;
 	}
 
 	public static LocalDateTime parseToLocalDateTime(String dateTime) {
 		return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
 	}
-	
+
 	public static String getFormatExceptionMessage() {
 		return "The format should be of dd-MM-yyyy HH:mm ";
 	}

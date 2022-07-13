@@ -30,6 +30,7 @@ public class NotificationSender implements Runnable {
 		this.notificationService = notificationService;
 	}
 
+	// Transaction
 	@Override
 	public void run() {
 		try {
@@ -43,6 +44,7 @@ public class NotificationSender implements Runnable {
 
 				pushController.sendNotificationToUser(subscriptions, notification.getNotificationForClient());
 
+				// to change
 				notificationService.setNotActive(notification);
 			}
 

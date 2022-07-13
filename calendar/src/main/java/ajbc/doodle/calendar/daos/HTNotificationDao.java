@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -67,6 +69,31 @@ public class HTNotificationDao implements NotificationDao {
 		assertNotificationListNotNullable(notifications);
 
 		return notifications;
+	}
+	
+
+	@Override
+	public List<Notification> getNotificationsByUserEvent(int eventId, int userId) throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
+		criteria.add(Restrictions.eq("eventId", eventId));
+		criteria.add(Restrictions.eq("userId", userId));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		
+		List<Notification> notifications = (List<Notification>) template.findByCriteria(criteria);
+		assertNotificationListNotNullable(notifications);
+
+		return notifications;
+	}
+
+	@Override
+	public Long getNumNotificationsForUserEvent(int eventId, int userId) throws DaoException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Notification.class);
+		criteria.add(Restrictions.eq("eventId", eventId));
+		criteria.add(Restrictions.eq("userId", userId));
+		criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		criteria.setProjection(Projections.countDistinct("id"));
+		
+		return (Long) template.findByCriteria(criteria).get(0);
 	}
 
 	/**
