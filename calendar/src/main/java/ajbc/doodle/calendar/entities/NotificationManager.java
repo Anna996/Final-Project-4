@@ -63,6 +63,7 @@ public class NotificationManager {
 		}
 	}
 
+	// Stop the existed scheduledExecutor and creates a new one.
 	private void updateWakingTime(LocalDateTime nextDateTime) {
 
 		this.nextDateTime = nextDateTime;
@@ -77,6 +78,7 @@ public class NotificationManager {
 		scheduledExecutorService.schedule(() -> this.run(), secondsToSleep, TimeUnit.SECONDS);
 	}
 
+	// The logic method of the manager - enqueue the notifications and send each of them to thread.
 	public void run() {
 
 		List<Notification> readyToRun = new ArrayList<Notification>();
@@ -125,6 +127,8 @@ public class NotificationManager {
 		notifications.forEach(notification -> updateNotification(notification));
 	}
 
+	// getters and setters
+	
 	protected LocalDateTime getNextDateTime() {
 		return nextDateTime;
 	}
